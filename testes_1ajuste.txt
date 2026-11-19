@@ -1,0 +1,1310 @@
+linhas: 40,000 | configurações com n >= 6: 3,631 | peso: sqrt
+features: contexto 3, GPU 21, CPU 11
+
+== 1. ABLAÇÃO (Gradient Boosting, divisão por GPU) ==
+só contexto (jogo, resolução, config.)     R²  0.388 erro  42.7% | n>=6: R²  0.531 erro  32.0%     4s
+contexto + CPU                             R²  0.594 erro  33.0% | n>=6: R²  0.777 erro  20.4%     5s
+contexto + GPU                             R²  0.637 erro  29.8% | n>=6: R²  0.828 erro  17.8%     7s
+contexto + GPU + CPU                       R²  0.687 erro  27.0% | n>=6: R²  0.877 erro  14.6%     8s
+
+== 2. LOG NAS FEATURES (Ridge, divisão por GPU) ==
+colunas com log1p: ['GpuMemoryBus', 'GpuOpenCL', 'GpuProcessSize', 'GpuNumberOfTransistors', 'CpuNumberOfThreads', 'CpuBaseClock', 'CpuCacheL1', 'CpuCacheL2', 'CpuCacheL3', 'CpuProcessSize', 'CpuTDP']
+Ridge                                      R²  0.634 erro  30.0% | n>=6: R²  0.818 erro  18.2% 
+Ridge com log nas features                 R²  0.634 erro  29.9% | n>=6: R²  0.812 erro  18.6% 
+
+== 3. AJUSTE DO GRADIENT BOOSTING (divisão por GPU) ==
+padrão do scikit-learn                     R²  0.687 erro  27.0% | n>=6: R²  0.877 erro  14.6% 
+{'learning_rate': 0.05, 'max_leaf_nodes': 15} R²  0.687 erro  27.0% | n>=6: R²  0.876 erro  14.7%    23s
+{'learning_rate': 0.05, 'max_leaf_nodes': 31} R²  0.689 erro  26.8% | n>=6: R²  0.878 erro  14.5%    23s
+{'learning_rate': 0.05, 'max_leaf_nodes': 63} R²  0.690 erro  26.6% | n>=6: R²  0.880 erro  14.3%    30s
+{'learning_rate': 0.1, 'max_leaf_nodes': 15} R²  0.688 erro  27.0% | n>=6: R²  0.878 erro  14.5%    16s
+{'learning_rate': 0.1, 'max_leaf_nodes': 31} R²  0.689 erro  26.8% | n>=6: R²  0.879 erro  14.4%    15s
+{'learning_rate': 0.1, 'max_leaf_nodes': 63} R²  0.689 erro  26.7% | n>=6: R²  0.877 erro  14.4%    18s
+
+melhor: {'max_iter': 500, 'early_stopping': True, 'n_iter_no_change': 20, 'learning_rate': 0.05, 'max_leaf_nodes': 63}
+(o ajuste usou a divisão por GPU; a confirmação abaixo usa outras divisões)
+por CPU: padrão                            R²  0.691 erro  26.4% | n>=6: R²  0.880 erro  14.3% 
+por CPU: ajustado                          R²  0.693 erro  26.1% | n>=6: R²  0.885 erro  13.9% 
+aleatória: padrão                          R²  0.697 erro  25.8% | n>=6: R²  0.893 erro  13.3% 
+aleatória: ajustado                        R²  0.701 erro  25.2% | n>=6: R²  0.899 erro  12.8% 
+
+== 4. ONDE O MODELO ERRA (Gradient Boosting, por GPU) ==
+
+-- por GameName (viés + = o modelo prevê FPS a mais) --
+                              linhas  viés%  erro%
+GameName                                          
+minecraft                       1319   -0.1   72.2
+arkSurvivalEvolved               844    1.0   37.1
+battlefield4                    1533    1.4   34.6
+rocketLeague                     649   -1.6   34.5
+worldOfTanks                    1763    1.0   31.7
+counterStrikeGlobalOffensive    4324   -0.2   30.5
+callOfDutyBlackOps4              883    0.6   30.3
+leagueOfLegends                 2950   -1.0   29.9
+rust                             813    1.0   29.3
+fortnite                        3646    0.5   28.7
+battlefield1                    1975    1.6   28.5
+dota2                           1673   -0.6   27.5
+overwatch                       3213   -0.3   25.6
+grandTheftAuto5                 3568    1.0   24.8
+playerUnknownsBattlegrounds     3630    0.9   23.8
+apexLegends                     1918    0.4   23.4
+totalWar3Kingdoms                358    3.0    9.8
+warframe                         385   -3.3    9.2
+radicalHeights                   385    2.4    9.1
+farCry5                          383    1.2    9.1
+battletech                       399    2.0    9.0
+frostpunk                        354   -2.0    8.9
+pathOfExile                      377   -2.5    8.8
+aWayOut                          376   -2.3    8.7
+starcraft2                       382   -2.2    8.7
+airMechStrike                    391   -1.5    8.6
+rainbowSixSiege                  397    2.1    8.6
+callOfDutyWW2                    369   -1.3    8.4
+seaOfThieves                     355   -2.1    8.3
+destiny2                         388   -0.2    8.1
+
+-- por faixa_n (viés + = o modelo prevê FPS a mais) --
+         linhas  viés%  erro%
+faixa_n                      
+2          6120   -0.8   30.6
+1         25457    1.3   28.2
+3-5        4792   -2.0   23.1
+6-20       2695   -2.6   15.4
+>20         936   -3.4   11.2
+
+-- por GameSetting (viés + = o modelo prevê FPS a mais) --
+             linhas  viés%  erro%
+GameSetting                      
+0              6925   -0.2   32.5
+2              8043   -0.7   29.4
+3             14336    0.9   25.9
+1             10696    0.4   22.0
+
+-- por GameResolution (viés + = o modelo prevê FPS a mais) --
+                linhas  viés%  erro%
+GameResolution                      
+720.0             7988    0.1   37.4
+1440.0            4275   -0.7   30.5
+1080.0           27737    0.4   23.1
+
+-- por GpuArchitecture (viés + = o modelo prevê FPS a mais) --
+                 linhas  viés%  erro%
+GpuArchitecture                      
+TeraScale           161    5.1   51.4
+Tesla 2.0           343    5.1   47.6
+Generation 7.0      114   16.2   46.2
+Fermi               483   -1.6   44.2
+TeraScale 2        1049   -1.0   44.2
+Kepler 2.0          725   -0.8   43.4
+Fermi 2.0           538   -4.7   41.8
+Tesla               283    2.1   40.7
+Generation 8.0      105    5.0   38.0
+Maxwell             694   -0.3   35.9
+GCN 1.0            2642   -0.9   35.9
+TeraScale 3         117    9.6   33.7
+Kepler             3728    0.5   32.5
+GCN 2.0            1235   -0.8   32.2
+GCN 3.0             598   -2.1   31.3
+GCN 4.0            4721    2.1   27.3
+Pascal            11544    2.5   22.7
+Maxwell 2.0        4027   -3.2   22.6
+GCN 5.0             783    0.3   19.3
+Turing             5245   -3.5   18.2
+RDNA 1.0            794    3.6   11.8
+
+-- por GpuName (viés + = o modelo prevê FPS a mais) --
+                                      linhas  viés%  erro%
+GpuName                                                   
+AMD Radeon HD 7870M                      152  -20.8   52.3
+NVIDIA GeForce 210                       198   10.2   49.5
+Intel HD Graphics 2500                   114   16.2   46.2
+ATI Radeon HD 5450                       165   -5.8   46.1
+NVIDIA GeForce GT 710 OEM                258   -8.0   45.5
+NVIDIA GeForce GT 630 Rev. 2 PCIe x8     247    4.8   44.7
+NVIDIA GeForce GTX 550 Ti                194   -5.2   43.4
+AMD Radeon HD 6850                       112   -6.1   43.1
+NVIDIA GeForce GTX 650 Ti OEM            147    1.1   41.4
+AMD Radeon HD 7770M                      178   -3.7   40.3
+
+-- por CpuName (viés + = o modelo prevê FPS a mais) --
+                      linhas  viés%  erro%
+CpuName                                   
+Intel Pentium G3220      122   -3.0   51.7
+Intel Core i3-540        121    0.1   45.7
+Intel Core i3-2100       266   -2.7   42.9
+AMD Athlon II X2 250     151    3.0   41.4
+AMD Athlon II X4 640     165    2.0   39.5
+Intel Core i3-4130       216    2.1   38.7
+AMD FX-9590              139    0.5   38.3
+Intel Core i5-2500       114   -4.7   38.2
+Intel Core i7-920        111   -0.0   38.1
+Intel Core i5-2400       357   -2.0   37.0
+
+
+--------------------------
+
+linhas: 40,000 | configurações com n >= 6: 3,631 | peso: n
+features: contexto 3, GPU 21, CPU 11
+
+== 1. ABLAÇÃO (Gradient Boosting, divisão por GPU) ==
+só contexto (jogo, resolução, config.)     R²  0.337 erro  44.4% | n>=6: R²  0.541 erro  30.8%     4s
+contexto + CPU                             R²  0.580 erro  33.6% | n>=6: R²  0.785 erro  19.5%     5s
+contexto + GPU                             R²  0.628 erro  30.3% | n>=6: R²  0.823 erro  17.9%     8s
+contexto + GPU + CPU                       R²  0.680 erro  27.5% | n>=6: R²  0.878 erro  14.4%     9s
+
+== 2. LOG NAS FEATURES (Ridge, divisão por GPU) ==
+colunas com log1p: ['GpuMemoryBus', 'GpuOpenCL', 'GpuProcessSize', 'GpuNumberOfTransistors', 'CpuNumberOfThreads', 'CpuBaseClock', 'CpuCacheL1', 'CpuCacheL2', 'CpuCacheL3', 'CpuProcessSize', 'CpuTDP']
+Ridge                                      R²  0.620 erro  30.4% | n>=6: R²  0.832 erro  17.0% 
+Ridge com log nas features                 R²  0.619 erro  30.5% | n>=6: R²  0.815 erro  17.9% 
+
+== 3. AJUSTE DO GRADIENT BOOSTING (divisão por GPU) ==
+padrão do scikit-learn                     R²  0.680 erro  27.5% | n>=6: R²  0.878 erro  14.4% 
+{'learning_rate': 0.05, 'max_leaf_nodes': 15} R²  0.681 erro  27.4% | n>=6: R²  0.875 erro  14.7%    22s
+{'learning_rate': 0.05, 'max_leaf_nodes': 31} R²  0.683 erro  27.1% | n>=6: R²  0.875 erro  14.6%    30s
+{'learning_rate': 0.05, 'max_leaf_nodes': 63} R²  0.685 erro  27.0% | n>=6: R²  0.876 erro  14.4%    31s
+{'learning_rate': 0.1, 'max_leaf_nodes': 15} R²  0.681 erro  27.4% | n>=6: R²  0.872 erro  14.8%    17s
+{'learning_rate': 0.1, 'max_leaf_nodes': 31} R²  0.683 erro  27.2% | n>=6: R²  0.875 erro  14.5%    16s
+{'learning_rate': 0.1, 'max_leaf_nodes': 63} R²  0.685 erro  27.0% | n>=6: R²  0.876 erro  14.5%    17s
+
+melhor: {'max_iter': 500, 'early_stopping': True, 'n_iter_no_change': 20, 'learning_rate': 0.05, 'max_leaf_nodes': 63}
+(o ajuste usou a divisão por GPU; a confirmação abaixo usa outras divisões)
+por CPU: padrão                            R²  0.684 erro  26.9% | n>=6: R²  0.886 erro  13.8% 
+por CPU: ajustado                          R²  0.689 erro  26.4% | n>=6: R²  0.885 erro  13.7% 
+aleatória: padrão                          R²  0.692 erro  26.2% | n>=6: R²  0.897 erro  12.9% 
+aleatória: ajustado                        R²  0.700 erro  25.4% | n>=6: R²  0.902 erro  12.5% 
+
+== 4. ONDE O MODELO ERRA (Gradient Boosting, por GPU) ==
+
+-- por GameName (viés + = o modelo prevê FPS a mais) --
+                              linhas  viés%  erro%
+GameName                                          
+minecraft                       1319    0.6   72.1
+arkSurvivalEvolved               844    2.4   37.3
+battlefield4                    1533    3.9   35.7
+rocketLeague                     649   -0.9   34.9
+worldOfTanks                    1763    3.3   31.7
+counterStrikeGlobalOffensive    4324    1.0   30.8
+callOfDutyBlackOps4              883    2.0   30.2
+leagueOfLegends                 2950   -0.8   30.0
+rust                             813    2.2   29.9
+fortnite                        3646    2.0   28.9
+battlefield1                    1975    2.2   28.6
+dota2                           1673   -0.3   27.7
+overwatch                       3213    0.2   25.6
+grandTheftAuto5                 3568    2.1   24.9
+playerUnknownsBattlegrounds     3630    2.1   24.3
+apexLegends                     1918    1.7   24.0
+radicalHeights                   385    3.5   10.1
+farCry5                          383    2.3   10.0
+totalWar3Kingdoms                358    3.4   10.0
+warframe                         385   -2.9    9.6
+rainbowSixSiege                  397    3.6    9.6
+frostpunk                        354   -2.0    9.6
+battletech                       399    2.7    9.5
+destiny2                         388    0.1    9.3
+aWayOut                          376   -2.0    9.2
+starcraft2                       382   -2.1    9.0
+callOfDutyWW2                    369   -0.9    8.9
+pathOfExile                      377   -2.2    8.9
+airMechStrike                    391   -1.0    8.8
+seaOfThieves                     355   -1.3    8.8
+
+-- por faixa_n (viés + = o modelo prevê FPS a mais) --
+         linhas  viés%  erro%
+faixa_n                      
+2          6120    0.1   30.5
+1         25457    2.2   28.7
+3-5        4792   -0.7   23.2
+6-20       2695   -0.9   15.6
+>20         936   -2.3   11.2
+
+-- por GameSetting (viés + = o modelo prevê FPS a mais) --
+             linhas  viés%  erro%
+GameSetting                      
+0              6925    0.8   32.8
+2              8043    0.2   29.4
+3             14336    2.2   26.5
+1             10696    1.1   22.1
+
+-- por GameResolution (viés + = o modelo prevê FPS a mais) --
+                linhas  viés%  erro%
+GameResolution                      
+720.0             7988    1.1   37.5
+1440.0            4275    0.1   30.6
+1080.0           27737    1.5   23.5
+
+-- por GpuArchitecture (viés + = o modelo prevê FPS a mais) --
+                 linhas  viés%  erro%
+GpuArchitecture                      
+TeraScale           161    4.0   52.6
+Tesla 2.0           343    2.2   47.4
+Generation 7.0      114   18.5   47.2
+Fermi               483   -2.4   43.9
+TeraScale 2        1049   -0.0   43.8
+Kepler 2.0          725   -2.0   43.5
+Generation 8.0      105   12.2   41.3
+Fermi 2.0           538   -3.4   41.2
+Tesla               283    4.6   41.0
+Maxwell             694   -0.5   35.9
+GCN 1.0            2642   -0.6   35.8
+TeraScale 3         117   10.4   33.5
+Kepler             3728    1.0   32.7
+GCN 2.0            1235   -0.2   32.1
+GCN 3.0             598   -0.4   31.3
+GCN 4.0            4721    3.1   27.0
+Pascal            11544    3.9   23.5
+Maxwell 2.0        4027    0.0   22.5
+GCN 5.0             783   -0.3   19.9
+Turing             5245   -3.1   18.7
+RDNA 1.0            794    4.9   12.5
+
+-- por GpuName (viés + = o modelo prevê FPS a mais) --
+                                      linhas  viés%  erro%
+GpuName                                                   
+AMD Radeon HD 7870M                      152  -19.3   51.5
+NVIDIA GeForce 210                       198    4.9   49.1
+Intel HD Graphics 2500                   114   18.5   47.2
+NVIDIA GeForce GT 710 OEM                258   -9.2   46.0
+NVIDIA GeForce GT 630 Rev. 2 PCIe x8     247    0.2   44.6
+ATI Radeon HD 5450                       165   -1.2   44.6
+AMD Radeon HD 6850                       112   -7.5   42.6
+NVIDIA GeForce GTX 550 Ti                194   -7.7   42.5
+NVIDIA GeForce GT 640 Rev. 2             121    7.5   41.6
+NVIDIA GeForce GTX 650 Ti OEM            147    6.9   40.1
+
+-- por CpuName (viés + = o modelo prevê FPS a mais) --
+                      linhas  viés%  erro%
+CpuName                                   
+Intel Pentium G3220      122   -0.6   49.8
+Intel Core i3-540        121    0.6   46.6
+Intel Core i3-2100       266   -0.8   41.9
+AMD Athlon II X2 250     151    0.9   40.8
+AMD Athlon II X4 640     165    4.5   39.3
+Intel Core i3-4130       216    1.9   39.2
+Intel Core i7-920        111    2.0   39.1
+AMD FX-9590              139    1.1   37.8
+Intel Core i5-2500       114   -2.2   37.6
+AMD FX-8150              152    6.6   37.4
+
+
+--------------------------
+
+linhas: 40,000 | configurações com n >= 6: 3,631 | peso: none
+features: contexto 3, GPU 21, CPU 11
+
+== 1. ABLAÇÃO (Gradient Boosting, divisão por GPU) ==
+só contexto (jogo, resolução, config.)     R²  0.398 erro  42.8% | n>=6: R²  0.442 erro  36.1%     4s
+contexto + CPU                             R²  0.596 erro  33.2% | n>=6: R²  0.743 erro  22.7%     5s
+contexto + GPU                             R²  0.638 erro  29.8% | n>=6: R²  0.813 erro  18.6%     8s
+contexto + GPU + CPU                       R²  0.686 erro  27.0% | n>=6: R²  0.866 erro  15.4%     9s
+
+== 2. LOG NAS FEATURES (Ridge, divisão por GPU) ==
+colunas com log1p: ['GpuMemoryBus', 'GpuOpenCL', 'GpuProcessSize', 'GpuNumberOfTransistors', 'CpuNumberOfThreads', 'CpuBaseClock', 'CpuCacheL1', 'CpuCacheL2', 'CpuCacheL3', 'CpuProcessSize', 'CpuTDP']
+Ridge                                      R²  0.635 erro  30.2% | n>=6: R²  0.793 erro  19.8% 
+Ridge com log nas features                 R²  0.637 erro  30.1% | n>=6: R²  0.791 erro  20.0% 
+
+== 3. AJUSTE DO GRADIENT BOOSTING (divisão por GPU) ==
+padrão do scikit-learn                     R²  0.686 erro  27.0% | n>=6: R²  0.866 erro  15.4% 
+{'learning_rate': 0.05, 'max_leaf_nodes': 15} R²  0.686 erro  27.0% | n>=6: R²  0.865 erro  15.5%    20s
+{'learning_rate': 0.05, 'max_leaf_nodes': 31} R²  0.688 erro  26.9% | n>=6: R²  0.867 erro  15.3%    20s
+{'learning_rate': 0.05, 'max_leaf_nodes': 63} R²  0.689 erro  26.7% | n>=6: R²  0.870 erro  15.0%    24s
+{'learning_rate': 0.1, 'max_leaf_nodes': 15} R²  0.686 erro  27.0% | n>=6: R²  0.868 erro  15.2%    14s
+{'learning_rate': 0.1, 'max_leaf_nodes': 31} R²  0.687 erro  26.9% | n>=6: R²  0.867 erro  15.3%    11s
+{'learning_rate': 0.1, 'max_leaf_nodes': 63} R²  0.688 erro  26.8% | n>=6: R²  0.866 erro  15.2%    13s
+
+melhor: {'max_iter': 500, 'early_stopping': True, 'n_iter_no_change': 20, 'learning_rate': 0.05, 'max_leaf_nodes': 63}
+(o ajuste usou a divisão por GPU; a confirmação abaixo usa outras divisões)
+por CPU: padrão                            R²  0.691 erro  26.4% | n>=6: R²  0.867 erro  15.2% 
+por CPU: ajustado                          R²  0.693 erro  26.1% | n>=6: R²  0.873 erro  14.8% 
+aleatória: padrão                          R²  0.697 erro  25.7% | n>=6: R²  0.879 erro  14.4% 
+aleatória: ajustado                        R²  0.700 erro  25.3% | n>=6: R²  0.885 erro  13.9% 
+
+== 4. ONDE O MODELO ERRA (Gradient Boosting, por GPU) ==
+
+-- por GameName (viés + = o modelo prevê FPS a mais) --
+                              linhas  viés%  erro%
+GameName                                          
+minecraft                       1319   -1.5   72.9
+arkSurvivalEvolved               844    0.8   37.5
+rocketLeague                     649   -2.1   35.2
+battlefield4                    1533   -0.5   33.8
+worldOfTanks                    1763   -0.6   31.9
+counterStrikeGlobalOffensive    4324   -1.0   30.9
+callOfDutyBlackOps4              883    1.3   30.1
+leagueOfLegends                 2950   -0.9   30.0
+rust                             813   -0.0   29.4
+fortnite                        3646   -0.9   28.8
+battlefield1                    1975    1.0   28.6
+dota2                           1673   -1.2   27.4
+overwatch                       3213   -0.8   25.6
+grandTheftAuto5                 3568    0.4   24.9
+playerUnknownsBattlegrounds     3630    0.2   23.8
+apexLegends                     1918    0.6   23.4
+totalWar3Kingdoms                358    3.0    9.7
+radicalHeights                   385    2.6    9.6
+farCry5                          383    1.9    9.5
+battletech                       399    2.5    9.1
+rainbowSixSiege                  397    2.3    9.0
+frostpunk                        354   -2.5    8.7
+warframe                         385   -2.4    8.7
+aWayOut                          376   -2.7    8.6
+starcraft2                       382   -2.6    8.4
+pathOfExile                      377   -2.8    8.3
+callOfDutyWW2                    369   -1.7    8.2
+airMechStrike                    391   -1.8    8.1
+destiny2                         388    0.3    8.0
+seaOfThieves                     355   -2.1    7.9
+
+-- por faixa_n (viés + = o modelo prevê FPS a mais) --
+         linhas  viés%  erro%
+faixa_n                      
+2          6120   -1.4   30.8
+1         25457    0.9   28.1
+3-5        4792   -3.0   23.5
+6-20       2695   -3.9   16.0
+>20         936   -5.3   12.4
+
+-- por GameSetting (viés + = o modelo prevê FPS a mais) --
+             linhas  viés%  erro%
+GameSetting                      
+0              6925   -0.7   32.9
+2              8043   -0.9   29.6
+3             14336   -0.3   25.9
+1             10696    0.1   21.8
+
+-- por GameResolution (viés + = o modelo prevê FPS a mais) --
+                linhas  viés%  erro%
+GameResolution                      
+720.0             7988   -0.2   37.6
+1440.0            4275   -1.0   30.7
+1080.0           27737   -0.3   23.1
+
+-- por GpuArchitecture (viés + = o modelo prevê FPS a mais) --
+                 linhas  viés%  erro%
+GpuArchitecture                      
+TeraScale           161    4.0   51.1
+Tesla 2.0           343    4.3   48.7
+Generation 7.0      114    9.3   44.7
+TeraScale 2        1049   -0.9   44.5
+Fermi               483   -0.7   44.3
+Kepler 2.0          725   -1.6   43.4
+Fermi 2.0           538   -5.2   42.1
+Generation 8.0      105   12.4   41.4
+Tesla               283   -0.8   41.0
+GCN 1.0            2642   -2.4   36.3
+Maxwell             694   -1.3   35.5
+TeraScale 3         117    9.8   33.2
+Kepler             3728    0.8   32.6
+GCN 2.0            1235   -1.4   32.1
+GCN 3.0             598   -2.4   31.2
+GCN 4.0            4721    1.5   27.2
+Maxwell 2.0        4027   -3.8   23.1
+Pascal            11544    1.7   22.6
+GCN 5.0             783    0.5   18.8
+Turing             5245   -4.1   18.3
+RDNA 1.0            794    3.5   11.8
+
+-- por GpuName (viés + = o modelo prevê FPS a mais) --
+                                      linhas  viés%  erro%
+GpuName                                                   
+AMD Radeon HD 7870M                      152  -23.0   53.9
+NVIDIA GeForce 210                       198   10.7   50.7
+ATI Radeon HD 5450                       165   -6.6   46.8
+NVIDIA GeForce GT 710 OEM                258  -11.1   45.7
+Intel HD Graphics 2500                   114    9.3   44.7
+NVIDIA GeForce GT 630 Rev. 2 PCIe x8     247    4.7   44.1
+NVIDIA GeForce GTX 550 Ti                194   -4.4   43.5
+AMD Radeon HD 6850                       112   -4.5   42.9
+NVIDIA GeForce GT 640 Rev. 2             121    8.9   41.7
+AMD Radeon HD 7770M                      178   -3.9   41.6
+
+-- por CpuName (viés + = o modelo prevê FPS a mais) --
+                      linhas  viés%  erro%
+CpuName                                   
+Intel Pentium G3220      122   -2.7   52.5
+Intel Core i3-540        121    0.5   46.5
+Intel Core i3-2100       266   -2.7   42.7
+AMD Athlon II X2 250     151    3.1   40.7
+AMD Athlon II X4 640     165    1.6   39.8
+Intel Core i3-4130       216    3.1   39.3
+Intel Core i5-2500       114   -5.0   38.8
+Intel Core i7-920        111   -1.0   38.8
+AMD FX-9590              139    0.5   37.9
+AMD FX-8150              152    4.7   37.4
+
+---------------------------
+
+linhas: 106,773 | configurações com n >= 6: 9,633 | peso: sqrt
+features: contexto 3, GPU 21, CPU 11
+
+== 1. ABLAÇÃO (Gradient Boosting, divisão por GPU) ==
+só contexto (jogo, resolução, config.)     R²  0.390 erro  42.5% | n>=6: R²  0.550 erro  31.9%     8s
+contexto + CPU                             R²  0.597 erro  32.7% | n>=6: R²  0.787 erro  20.2%     9s
+contexto + GPU                             R²  0.638 erro  29.7% | n>=6: R²  0.837 erro  17.6%    17s
+contexto + GPU + CPU                       R²  0.690 erro  26.7% | n>=6: R²  0.885 erro  14.2%    18s
+
+== 2. LOG NAS FEATURES (Ridge, divisão por GPU) ==
+colunas com log1p: ['GpuMemoryBus', 'GpuOpenCL', 'GpuProcessSize', 'GpuNumberOfTransistors', 'CpuNumberOfThreads', 'CpuBaseClock', 'CpuCacheL1', 'CpuCacheL2', 'CpuCacheL3', 'CpuProcessSize', 'CpuTDP']
+Ridge                                      R²  0.634 erro  29.8% | n>=6: R²  0.818 erro  18.5% 
+Ridge com log nas features                 R²  0.633 erro  29.9% | n>=6: R²  0.816 erro  18.6% 
+
+== 3. AJUSTE DO GRADIENT BOOSTING (divisão por GPU) ==
+padrão do scikit-learn                     R²  0.690 erro  26.7% | n>=6: R²  0.885 erro  14.2% 
+{'learning_rate': 0.05, 'max_leaf_nodes': 15} R²  0.689 erro  26.8% | n>=6: R²  0.883 erro  14.4%    44s
+{'learning_rate': 0.05, 'max_leaf_nodes': 31} R²  0.694 erro  26.3% | n>=6: R²  0.889 erro  13.9%    56s
+{'learning_rate': 0.05, 'max_leaf_nodes': 63} R²  0.693 erro  26.3% | n>=6: R²  0.891 erro  13.7%    64s
+{'learning_rate': 0.1, 'max_leaf_nodes': 15} R²  0.689 erro  26.7% | n>=6: R²  0.884 erro  14.3%    43s
+{'learning_rate': 0.1, 'max_leaf_nodes': 31} R²  0.691 erro  26.5% | n>=6: R²  0.888 erro  14.0%    43s
+{'learning_rate': 0.1, 'max_leaf_nodes': 63} R²  0.693 erro  26.3% | n>=6: R²  0.890 erro  13.8%    36s
+
+melhor: {'max_iter': 500, 'early_stopping': True, 'n_iter_no_change': 20, 'learning_rate': 0.05, 'max_leaf_nodes': 31}
+(o ajuste usou a divisão por GPU; a confirmação abaixo usa outras divisões)
+por CPU: padrão                            R²  0.696 erro  25.8% | n>=6: R²  0.892 erro  13.7% 
+por CPU: ajustado                          R²  0.701 erro  25.3% | n>=6: R²  0.896 erro  13.4% 
+aleatória: padrão                          R²  0.703 erro  25.3% | n>=6: R²  0.902 erro  13.0% 
+aleatória: ajustado                        R²  0.708 erro  24.7% | n>=6: R²  0.907 erro  12.6% 
+
+== 4. ONDE O MODELO ERRA (Gradient Boosting, por GPU) ==
+
+-- por GameName (viés + = o modelo prevê FPS a mais) --
+                              linhas  viés%  erro%
+GameName                                          
+minecraft                       3587   -1.2   71.0
+arkSurvivalEvolved              2085    2.3   36.6
+battlefield4                    4106    2.3   33.9
+rocketLeague                    1741   -1.6   33.4
+worldOfTanks                    4604    1.0   31.4
+counterStrikeGlobalOffensive   11504    0.1   30.1
+leagueOfLegends                 7832    0.0   30.1
+callOfDutyBlackOps4             2427    1.5   29.8
+fortnite                        9564    0.7   28.8
+rust                            2247    1.4   27.5
+battlefield1                    5287    2.1   27.4
+dota2                           4593   -0.5   27.2
+overwatch                       8671   -0.2   25.1
+grandTheftAuto5                 9324    1.2   24.8
+playerUnknownsBattlegrounds     9686    1.5   23.8
+apexLegends                     5151    0.9   22.2
+warframe                        1026   -1.6    9.8
+totalWar3Kingdoms               1026    1.3    9.3
+pathOfExile                     1026   -1.3    9.2
+destiny2                        1026    0.8    9.1
+radicalHeights                  1026    1.5    9.1
+starcraft2                      1026   -1.0    9.1
+frostpunk                       1026   -1.0    9.0
+battletech                      1026    1.4    8.9
+callOfDutyWW2                   1026   -0.8    8.9
+seaOfThieves                    1026   -1.0    8.9
+aWayOut                         1026   -0.9    8.9
+airMechStrike                   1026   -0.8    8.8
+rainbowSixSiege                 1026    1.9    8.8
+farCry5                         1026    1.8    8.8
+
+-- por faixa_n (viés + = o modelo prevê FPS a mais) --
+         linhas  viés%  erro%
+faixa_n                      
+2         16094   -0.7   29.9
+1         68222    1.7   28.0
+3-5       12824   -1.7   22.9
+6-20       7156   -2.2   15.1
+>20        2477   -1.9   10.5
+
+-- por GameSetting (viés + = o modelo prevê FPS a mais) --
+             linhas  viés%  erro%
+GameSetting                      
+0             18241    0.5   32.3
+2             21298   -0.4   29.2
+3             38576    1.2   25.3
+1             28658    0.6   22.0
+
+-- por GameResolution (viés + = o modelo prevê FPS a mais) --
+                linhas  viés%  erro%
+GameResolution                      
+720.0            21282    0.3   37.3
+1440.0           11387   -0.2   29.0
+1080.0           74104    0.8   23.0
+
+-- por GpuArchitecture (viés + = o modelo prevê FPS a mais) --
+                 linhas  viés%  erro%
+GpuArchitecture                      
+Tesla               739    3.2   49.0
+Tesla 2.0           971    5.3   48.5
+Fermi              1286   -0.5   44.8
+TeraScale           434   -1.9   44.3
+Generation 7.0      292   14.1   44.2
+TeraScale 2        2787    2.1   43.4
+Fermi 2.0          1498   -3.7   41.9
+Kepler 2.0         2002    0.3   41.8
+Maxwell            1760    0.1   36.4
+TeraScale 3         299    5.4   35.8
+GCN 5.1              58    5.5   35.5
+GCN 1.0            6828   -0.3   35.1
+Kepler            10064    0.3   33.1
+GCN 3.0            1624    1.8   31.9
+Generation 8.0      284    8.2   31.8
+GCN 2.0            3271    0.9   31.7
+GCN 4.0           12408    2.0   28.4
+Maxwell 2.0       10788    1.1   22.1
+Pascal            30953    1.6   22.0
+GCN 5.0            2110    3.1   19.4
+Turing            13988   -3.8   17.4
+RDNA 1.0           2232    2.2   11.4
+
+-- por GpuName (viés + = o modelo prevê FPS a mais) --
+                           linhas  viés%  erro%
+GpuName                                        
+NVIDIA GeForce GT 440         153   -5.1   50.9
+NVIDIA GeForce GT 220 OEM     172   -3.3   49.8
+AMD Radeon HD 6450 OEM        178    3.2   48.9
+AMD Radeon HD 7870M           414  -22.9   48.3
+Intel HD Graphics 6000        102   12.4   47.8
+NVIDIA GeForce 9500 GT        214   10.0   47.7
+NVIDIA GeForce 210            523   12.8   47.3
+ATI Radeon HD 5570 OEM        110   -1.1   46.8
+ATI Radeon HD 5450            454    2.4   45.7
+ATI Radeon HD 4670            137   -7.9   44.5
+
+-- por CpuName (viés + = o modelo prevê FPS a mais) --
+                      linhas  viés%  erro%
+CpuName                                   
+Intel Pentium E5200      181    0.9   49.7
+Intel Core i7-2630QM     103   -4.5   48.0
+Intel Pentium G3220      320    2.1   47.7
+Intel Core i5-750        104   -1.4   46.9
+Intel Pentium G630       119    2.8   46.3
+Intel Pentium G620       149    0.2   46.2
+AMD Athlon II X2 245     123    6.2   45.4
+Intel Core i3-530        129   -3.3   44.9
+Intel Core i9-7900X      127   -3.2   43.7
+Intel Core i3-540        315    2.1   43.5
+
+-----------------------
+
+linhas: 106,773 | configurações com n >= 6: 9,633 | peso: n
+features: contexto 3, GPU 21, CPU 11
+
+== 1. ABLAÇÃO (Gradient Boosting, divisão por GPU) ==
+só contexto (jogo, resolução, config.)     R²  0.339 erro  43.9% | n>=6: R²  0.570 erro  30.0%     7s
+contexto + CPU                             R²  0.583 erro  33.2% | n>=6: R²  0.795 erro  19.3%    10s
+contexto + GPU                             R²  0.631 erro  30.0% | n>=6: R²  0.836 erro  17.6%    17s
+contexto + GPU + CPU                       R²  0.686 erro  26.9% | n>=6: R²  0.889 erro  13.8%    19s
+
+== 2. LOG NAS FEATURES (Ridge, divisão por GPU) ==
+colunas com log1p: ['GpuMemoryBus', 'GpuOpenCL', 'GpuProcessSize', 'GpuNumberOfTransistors', 'CpuNumberOfThreads', 'CpuBaseClock', 'CpuCacheL1', 'CpuCacheL2', 'CpuCacheL3', 'CpuProcessSize', 'CpuTDP']
+Ridge                                      R²  0.622 erro  30.1% | n>=6: R²  0.832 erro  17.2% 
+Ridge com log nas features                 R²  0.620 erro  30.3% | n>=6: R²  0.829 erro  17.5% 
+
+== 3. AJUSTE DO GRADIENT BOOSTING (divisão por GPU) ==
+padrão do scikit-learn                     R²  0.686 erro  26.9% | n>=6: R²  0.889 erro  13.8% 
+{'learning_rate': 0.05, 'max_leaf_nodes': 15} R²  0.687 erro  26.7% | n>=6: R²  0.889 erro  14.0%    50s
+{'learning_rate': 0.05, 'max_leaf_nodes': 31} R²  0.692 erro  26.4% | n>=6: R²  0.893 erro  13.6%    62s
+{'learning_rate': 0.05, 'max_leaf_nodes': 63} R²  0.694 erro  26.3% | n>=6: R²  0.896 erro  13.4%    72s
+{'learning_rate': 0.1, 'max_leaf_nodes': 15} R²  0.690 erro  26.5% | n>=6: R²  0.890 erro  13.9%    42s
+{'learning_rate': 0.1, 'max_leaf_nodes': 31} R²  0.691 erro  26.4% | n>=6: R²  0.891 erro  13.7%    41s
+{'learning_rate': 0.1, 'max_leaf_nodes': 63} R²  0.692 erro  26.4% | n>=6: R²  0.893 erro  13.5%    40s
+
+melhor: {'max_iter': 500, 'early_stopping': True, 'n_iter_no_change': 20, 'learning_rate': 0.05, 'max_leaf_nodes': 63}
+(o ajuste usou a divisão por GPU; a confirmação abaixo usa outras divisões)
+por CPU: padrão                            R²  0.691 erro  26.3% | n>=6: R²  0.898 erro  13.2% 
+por CPU: ajustado                          R²  0.699 erro  25.4% | n>=6: R²  0.901 erro  12.9% 
+aleatória: padrão                          R²  0.696 erro  25.8% | n>=6: R²  0.907 erro  12.5% 
+aleatória: ajustado                        R²  0.707 erro  24.7% | n>=6: R²  0.915 erro  11.9% 
+
+== 4. ONDE O MODELO ERRA (Gradient Boosting, por GPU) ==
+
+-- por GameName (viés + = o modelo prevê FPS a mais) --
+                              linhas  viés%  erro%
+GameName                                          
+minecraft                       3587   -0.8   71.1
+arkSurvivalEvolved              2085    1.3   36.7
+battlefield4                    4106    3.2   34.0
+rocketLeague                    1741   -1.5   33.5
+worldOfTanks                    4604    3.2   31.2
+counterStrikeGlobalOffensive   11504    0.1   30.1
+callOfDutyBlackOps4             2427    2.0   30.0
+leagueOfLegends                 7832   -0.3   29.8
+fortnite                        9564    1.0   28.7
+rust                            2247    0.9   27.4
+dota2                           4593    0.2   27.2
+battlefield1                    5287    2.6   27.0
+overwatch                       8671   -0.4   25.0
+grandTheftAuto5                 9324    1.7   24.8
+playerUnknownsBattlegrounds     9686    1.4   23.8
+apexLegends                     5151    1.2   22.3
+warframe                        1026   -1.9    9.8
+totalWar3Kingdoms               1026    2.5    9.7
+battletech                      1026    2.6    9.5
+destiny2                        1026   -0.5    9.1
+radicalHeights                  1026    1.7    9.0
+pathOfExile                     1026   -1.5    8.9
+rainbowSixSiege                 1026    1.7    8.9
+airMechStrike                   1026   -1.0    8.8
+frostpunk                       1026   -1.0    8.8
+callOfDutyWW2                   1026   -1.0    8.8
+aWayOut                         1026   -1.0    8.8
+starcraft2                      1026   -1.2    8.8
+seaOfThieves                    1026   -0.8    8.7
+farCry5                         1026    1.3    8.6
+
+-- por faixa_n (viés + = o modelo prevê FPS a mais) --
+         linhas  viés%  erro%
+faixa_n                      
+2         16094   -0.5   29.7
+1         68222    1.9   28.1
+3-5       12824   -1.4   22.6
+6-20       7156   -1.8   14.5
+>20        2477   -1.8   10.1
+
+-- por GameSetting (viés + = o modelo prevê FPS a mais) --
+             linhas  viés%  erro%
+GameSetting                      
+0             18241    0.6   32.3
+2             21298   -0.6   28.9
+3             38576    1.9   25.6
+1             28658    0.5   21.6
+
+-- por GameResolution (viés + = o modelo prevê FPS a mais) --
+                linhas  viés%  erro%
+GameResolution                      
+720.0            21282    0.5   37.2
+1440.0           11387   -0.2   28.8
+1080.0           74104    1.1   22.9
+
+-- por GpuArchitecture (viés + = o modelo prevê FPS a mais) --
+                 linhas  viés%  erro%
+GpuArchitecture                      
+Tesla               739    2.6   48.9
+Tesla 2.0           971    5.2   48.8
+Fermi              1286   -0.6   44.5
+TeraScale           434   -1.6   44.0
+TeraScale 2        2787    2.0   43.3
+Generation 7.0      292   14.2   42.7
+Fermi 2.0          1498   -1.8   41.7
+Kepler 2.0         2002    0.5   41.6
+Maxwell            1760    1.5   36.5
+TeraScale 3         299    6.7   35.4
+GCN 1.0            6828    1.0   34.9
+Generation 8.0      284   11.7   34.4
+GCN 5.1              58    3.4   34.1
+Kepler            10064   -0.6   32.9
+GCN 2.0            3271    0.9   31.7
+GCN 3.0            1624    0.4   31.5
+GCN 4.0           12408    1.8   28.2
+Maxwell 2.0       10788    1.5   22.4
+Pascal            30953    1.6   21.9
+GCN 5.0            2110    2.4   19.4
+Turing            13988   -2.5   17.2
+RDNA 1.0           2232    2.4   12.0
+
+-- por GpuName (viés + = o modelo prevê FPS a mais) --
+                           linhas  viés%  erro%
+GpuName                                        
+Intel HD Graphics 6000        102   22.4   55.4
+NVIDIA GeForce GT 440         153   -3.2   51.8
+NVIDIA GeForce GT 220 OEM     172    1.1   49.5
+AMD Radeon HD 6450 OEM        178    4.2   48.6
+NVIDIA GeForce 210            523   10.7   48.5
+ATI Radeon HD 5570 OEM        110   -2.6   47.6
+NVIDIA GeForce 9500 GT        214    6.4   47.4
+ATI Radeon HD 5450            454    3.7   46.4
+ATI Radeon HD 4670            137   -6.6   44.7
+NVIDIA GeForce GT 710 OEM     736   -1.0   43.1
+
+-- por CpuName (viés + = o modelo prevê FPS a mais) --
+                      linhas  viés%  erro%
+CpuName                                   
+Intel Pentium E5200      181    2.2   50.3
+Intel Core i7-2630QM     103   -3.5   49.8
+Intel Pentium G3220      320    5.7   48.9
+Intel Core i5-750        104    0.3   47.4
+Intel Pentium G620       149    0.9   45.8
+Intel Pentium G630       119    5.4   45.7
+Intel Core i3-530        129   -2.0   45.7
+AMD Athlon II X2 245     123    7.1   45.6
+Intel Core i9-7900X      127   -5.1   44.9
+AMD Athlon II X2 270     166   -1.4   43.0
+
+------------------
+
+linhas: 106,773 | configurações com n >= 6: 9,633 | peso: none
+features: contexto 3, GPU 21, CPU 11
+
+== 1. ABLAÇÃO (Gradient Boosting, divisão por GPU) ==
+só contexto (jogo, resolução, config.)     R²  0.401 erro  42.6% | n>=6: R²  0.458 erro  36.3%     8s
+contexto + CPU                             R²  0.600 erro  32.8% | n>=6: R²  0.758 erro  22.4%     9s
+contexto + GPU                             R²  0.639 erro  29.6% | n>=6: R²  0.822 erro  18.4%    16s
+contexto + GPU + CPU                       R²  0.692 erro  26.5% | n>=6: R²  0.874 erro  15.0%    18s
+
+== 2. LOG NAS FEATURES (Ridge, divisão por GPU) ==
+colunas com log1p: ['GpuMemoryBus', 'GpuOpenCL', 'GpuProcessSize', 'GpuNumberOfTransistors', 'CpuNumberOfThreads', 'CpuBaseClock', 'CpuCacheL1', 'CpuCacheL2', 'CpuCacheL3', 'CpuProcessSize', 'CpuTDP']
+Ridge                                      R²  0.636 erro  29.9% | n>=6: R²  0.794 erro  20.1% 
+Ridge com log nas features                 R²  0.635 erro  30.0% | n>=6: R²  0.794 erro  20.2% 
+
+== 3. AJUSTE DO GRADIENT BOOSTING (divisão por GPU) ==
+padrão do scikit-learn                     R²  0.692 erro  26.5% | n>=6: R²  0.874 erro  15.0% 
+{'learning_rate': 0.05, 'max_leaf_nodes': 15} R²  0.690 erro  26.6% | n>=6: R²  0.873 erro  15.1%    36s
+{'learning_rate': 0.05, 'max_leaf_nodes': 31} R²  0.695 erro  26.3% | n>=6: R²  0.880 erro  14.6%    45s
+{'learning_rate': 0.05, 'max_leaf_nodes': 63} R²  0.695 erro  26.2% | n>=6: R²  0.881 erro  14.5%    44s
+{'learning_rate': 0.1, 'max_leaf_nodes': 15} R²  0.690 erro  26.6% | n>=6: R²  0.876 erro  14.9%    32s
+{'learning_rate': 0.1, 'max_leaf_nodes': 31} R²  0.692 erro  26.4% | n>=6: R²  0.878 erro  14.7%    31s
+{'learning_rate': 0.1, 'max_leaf_nodes': 63} R²  0.691 erro  26.4% | n>=6: R²  0.880 erro  14.5%    31s
+
+melhor: {'max_iter': 500, 'early_stopping': True, 'n_iter_no_change': 20, 'learning_rate': 0.05, 'max_leaf_nodes': 63}
+(o ajuste usou a divisão por GPU; a confirmação abaixo usa outras divisões)
+por CPU: padrão                            R²  0.696 erro  25.8% | n>=6: R²  0.878 erro  14.9% 
+por CPU: ajustado                          R²  0.701 erro  25.2% | n>=6: R²  0.886 erro  14.2% 
+aleatória: padrão                          R²  0.702 erro  25.2% | n>=6: R²  0.888 erro  14.0% 
+aleatória: ajustado                        R²  0.709 erro  24.5% | n>=6: R²  0.897 erro  13.4% 
+
+== 4. ONDE O MODELO ERRA (Gradient Boosting, por GPU) ==
+
+-- por GameName (viés + = o modelo prevê FPS a mais) --
+                              linhas  viés%  erro%
+GameName                                          
+minecraft                       3587   -2.5   71.5
+arkSurvivalEvolved              2085    2.6   36.8
+rocketLeague                    1741   -2.0   33.2
+battlefield4                    4106   -0.3   33.1
+worldOfTanks                    4604   -0.5   31.2
+counterStrikeGlobalOffensive   11504   -0.3   30.1
+callOfDutyBlackOps4             2427    0.7   30.1
+leagueOfLegends                 7832   -0.1   29.8
+fortnite                        9564   -0.5   28.5
+battlefield1                    5287    2.1   27.3
+rust                            2247    0.2   27.3
+dota2                           4593   -0.7   27.2
+overwatch                       8671   -0.1   24.6
+grandTheftAuto5                 9324    0.9   24.6
+playerUnknownsBattlegrounds     9686    0.4   23.7
+apexLegends                     5151   -0.4   22.0
+warframe                        1026   -1.8   10.2
+pathOfExile                     1026   -1.5    9.9
+starcraft2                      1026   -1.4    9.6
+callOfDutyWW2                   1026   -1.4    9.4
+aWayOut                         1026   -1.4    9.1
+frostpunk                       1026   -1.4    9.0
+rainbowSixSiege                 1026    1.5    9.0
+seaOfThieves                    1026   -1.4    9.0
+airMechStrike                   1026   -1.4    9.0
+radicalHeights                  1026    1.8    8.9
+destiny2                        1026    0.5    8.9
+farCry5                         1026    1.3    8.8
+totalWar3Kingdoms               1026    1.5    8.7
+battletech                      1026    1.8    8.5
+
+-- por faixa_n (viés + = o modelo prevê FPS a mais) --
+         linhas  viés%  erro%
+faixa_n                      
+2         16094   -1.1   30.1
+1         68222    1.3   27.6
+3-5       12824   -2.5   23.0
+6-20       7156   -3.7   15.5
+>20        2477   -4.2   11.6
+
+-- por GameSetting (viés + = o modelo prevê FPS a mais) --
+             linhas  viés%  erro%
+GameSetting                      
+0             18241    0.1   32.2
+2             21298   -0.5   29.1
+3             38576    0.0   25.3
+1             28658    0.2   21.5
+
+-- por GameResolution (viés + = o modelo prevê FPS a mais) --
+                linhas  viés%  erro%
+GameResolution                      
+720.0            21282    0.2   37.2
+1440.0           11387   -0.8   29.2
+1080.0           74104    0.0   22.8
+
+-- por GpuArchitecture (viés + = o modelo prevê FPS a mais) --
+                 linhas  viés%  erro%
+GpuArchitecture                      
+Tesla 2.0           971    5.3   49.1
+Tesla               739    1.3   48.9
+TeraScale           434    0.5   45.3
+Fermi              1286   -1.8   44.5
+Generation 7.0      292   16.7   44.5
+TeraScale 2        2787    2.0   43.3
+Fermi 2.0          1498   -4.1   42.0
+Kepler 2.0         2002    0.8   41.4
+GCN 5.1              58    5.0   36.2
+Maxwell            1760   -0.1   36.1
+TeraScale 3         299    4.2   35.3
+GCN 1.0            6828   -0.4   35.3
+Kepler            10064    0.8   32.9
+Generation 8.0      284    8.8   32.3
+GCN 2.0            3271    0.6   31.7
+GCN 3.0            1624    2.6   31.7
+GCN 4.0           12408    2.3   27.5
+Maxwell 2.0       10788   -1.2   22.4
+Pascal            30953    0.5   21.8
+GCN 5.0            2110    2.2   19.7
+Turing            13988   -4.6   17.5
+RDNA 1.0           2232    1.7   10.3
+
+-- por GpuName (viés + = o modelo prevê FPS a mais) --
+                           linhas  viés%  erro%
+GpuName                                        
+Intel HD Graphics 6000        102   18.8   52.7
+NVIDIA GeForce GT 440         153   -5.8   51.8
+NVIDIA GeForce GT 220 OEM     172   -2.6   51.4
+AMD Radeon HD 7870M           414  -24.1   49.9
+AMD Radeon HD 6450 OEM        178    2.8   49.9
+NVIDIA GeForce 210            523   12.5   47.5
+NVIDIA GeForce 9500 GT        214    6.1   47.3
+ATI Radeon HD 5570 OEM        110   -4.2   46.8
+ATI Radeon HD 5450            454    1.8   46.4
+ATI Radeon HD 4670            137   -4.3   44.8
+
+-- por CpuName (viés + = o modelo prevê FPS a mais) --
+                      linhas  viés%  erro%
+CpuName                                   
+Intel Pentium E5200      181   -0.5   50.8
+Intel Pentium G3220      320    2.5   49.0
+Intel Core i7-2630QM     103   -4.8   48.8
+Intel Pentium G630       119   -0.1   46.5
+Intel Core i5-750        104   -1.5   46.3
+Intel Core i3-530        129   -4.1   45.8
+Intel Pentium G620       149   -1.2   44.5
+Intel Pentium G2020      245    6.5   43.6
+AMD Athlon II X2 245     123    5.8   43.5
+Intel Core i3-540        315    1.7   42.9
+
+-------------------
+
+linhas: 106,773 | configurações com n >= 7: 8,055 | peso: sqrt
+features: contexto 3, GPU 21, CPU 11
+
+== 1. ABLAÇÃO (Gradient Boosting, divisão por GPU) ==
+só contexto (jogo, resolução, config.)     R²  0.390 erro  42.5% | n>=7: R²  0.559 erro  31.7%     6s
+contexto + CPU                             R²  0.597 erro  32.7% | n>=7: R²  0.800 erro  19.6%     7s
+contexto + GPU                             R²  0.638 erro  29.7% | n>=7: R²  0.849 erro  17.0%    13s
+contexto + GPU + CPU                       R²  0.690 erro  26.7% | n>=7: R²  0.897 erro  13.5%    15s
+
+== 2. LOG NAS FEATURES (Ridge, divisão por GPU) ==
+colunas com log1p: ['GpuMemoryBus', 'GpuOpenCL', 'GpuProcessSize', 'GpuNumberOfTransistors', 'CpuNumberOfThreads', 'CpuBaseClock', 'CpuCacheL1', 'CpuCacheL2', 'CpuCacheL3', 'CpuProcessSize', 'CpuTDP']
+Ridge                                      R²  0.634 erro  29.8% | n>=7: R²  0.829 erro  17.9% 
+Ridge com log nas features                 R²  0.633 erro  29.9% | n>=7: R²  0.827 erro  18.1% 
+
+== 3. AJUSTE DO GRADIENT BOOSTING (divisão por GPU) ==
+padrão do scikit-learn                     R²  0.690 erro  26.7% | n>=7: R²  0.897 erro  13.5% 
+{'learning_rate': 0.05, 'max_leaf_nodes': 15} R²  0.689 erro  26.8% | n>=7: R²  0.895 erro  13.8%    36s
+{'learning_rate': 0.05, 'max_leaf_nodes': 31} R²  0.694 erro  26.3% | n>=7: R²  0.901 erro  13.2%    45s
+{'learning_rate': 0.05, 'max_leaf_nodes': 63} R²  0.693 erro  26.3% | n>=7: R²  0.903 erro  13.0%    49s
+{'learning_rate': 0.1, 'max_leaf_nodes': 15} R²  0.689 erro  26.7% | n>=7: R²  0.896 erro  13.6%    33s
+{'learning_rate': 0.1, 'max_leaf_nodes': 31} R²  0.691 erro  26.5% | n>=7: R²  0.901 erro  13.3%    33s
+{'learning_rate': 0.1, 'max_leaf_nodes': 63} R²  0.693 erro  26.3% | n>=7: R²  0.902 erro  13.1%    29s
+
+melhor: {'max_iter': 500, 'early_stopping': True, 'n_iter_no_change': 20, 'learning_rate': 0.05, 'max_leaf_nodes': 31}
+(o ajuste usou a divisão por GPU; a confirmação abaixo usa outras divisões)
+por CPU: padrão                            R²  0.696 erro  25.8% | n>=7: R²  0.904 erro  13.0% 
+por CPU: ajustado                          R²  0.701 erro  25.3% | n>=7: R²  0.908 erro  12.7% 
+aleatória: padrão                          R²  0.703 erro  25.3% | n>=7: R²  0.914 erro  12.2% 
+aleatória: ajustado                        R²  0.708 erro  24.7% | n>=7: R²  0.919 erro  11.8% 
+
+== 4. ONDE O MODELO ERRA (Gradient Boosting, por GPU) ==
+
+-- por GameName (viés + = o modelo prevê FPS a mais) --
+                              linhas  viés%  erro%
+GameName                                          
+minecraft                       3587   -1.2   71.0
+arkSurvivalEvolved              2085    2.3   36.6
+battlefield4                    4106    2.3   33.9
+rocketLeague                    1741   -1.6   33.4
+worldOfTanks                    4604    1.0   31.4
+counterStrikeGlobalOffensive   11504    0.1   30.1
+leagueOfLegends                 7832    0.0   30.1
+callOfDutyBlackOps4             2427    1.5   29.8
+fortnite                        9564    0.7   28.8
+rust                            2247    1.4   27.5
+battlefield1                    5287    2.1   27.4
+dota2                           4593   -0.5   27.2
+overwatch                       8671   -0.2   25.1
+grandTheftAuto5                 9324    1.2   24.8
+playerUnknownsBattlegrounds     9686    1.5   23.8
+apexLegends                     5151    0.9   22.2
+warframe                        1026   -1.6    9.8
+totalWar3Kingdoms               1026    1.3    9.3
+pathOfExile                     1026   -1.3    9.2
+destiny2                        1026    0.8    9.1
+radicalHeights                  1026    1.5    9.1
+starcraft2                      1026   -1.0    9.1
+frostpunk                       1026   -1.0    9.0
+battletech                      1026    1.4    8.9
+callOfDutyWW2                   1026   -0.8    8.9
+seaOfThieves                    1026   -1.0    8.9
+aWayOut                         1026   -0.9    8.9
+airMechStrike                   1026   -0.8    8.8
+rainbowSixSiege                 1026    1.9    8.8
+farCry5                         1026    1.8    8.8
+
+-- por faixa_n (viés + = o modelo prevê FPS a mais) --
+         linhas  viés%  erro%
+faixa_n                      
+2         16094   -0.7   29.9
+1         68222    1.7   28.0
+3-5       12824   -1.7   22.9
+6-20       7156   -2.2   15.1
+>20        2477   -1.9   10.5
+
+-- por GameSetting (viés + = o modelo prevê FPS a mais) --
+             linhas  viés%  erro%
+GameSetting                      
+0             18241    0.5   32.3
+2             21298   -0.4   29.2
+3             38576    1.2   25.3
+1             28658    0.6   22.0
+
+-- por GameResolution (viés + = o modelo prevê FPS a mais) --
+                linhas  viés%  erro%
+GameResolution                      
+720.0            21282    0.3   37.3
+1440.0           11387   -0.2   29.0
+1080.0           74104    0.8   23.0
+
+-- por GpuArchitecture (viés + = o modelo prevê FPS a mais) --
+                 linhas  viés%  erro%
+GpuArchitecture                      
+Tesla               739    3.2   49.0
+Tesla 2.0           971    5.3   48.5
+Fermi              1286   -0.5   44.8
+TeraScale           434   -1.9   44.3
+Generation 7.0      292   14.1   44.2
+TeraScale 2        2787    2.1   43.4
+Fermi 2.0          1498   -3.7   41.9
+Kepler 2.0         2002    0.3   41.8
+Maxwell            1760    0.1   36.4
+TeraScale 3         299    5.4   35.8
+GCN 5.1              58    5.5   35.5
+GCN 1.0            6828   -0.3   35.1
+Kepler            10064    0.3   33.1
+GCN 3.0            1624    1.8   31.9
+Generation 8.0      284    8.2   31.8
+GCN 2.0            3271    0.9   31.7
+GCN 4.0           12408    2.0   28.4
+Maxwell 2.0       10788    1.1   22.1
+Pascal            30953    1.6   22.0
+GCN 5.0            2110    3.1   19.4
+Turing            13988   -3.8   17.4
+RDNA 1.0           2232    2.2   11.4
+
+-- por GpuName (viés + = o modelo prevê FPS a mais) --
+                           linhas  viés%  erro%
+GpuName                                        
+NVIDIA GeForce GT 440         153   -5.1   50.9
+NVIDIA GeForce GT 220 OEM     172   -3.3   49.8
+AMD Radeon HD 6450 OEM        178    3.2   48.9
+AMD Radeon HD 7870M           414  -22.9   48.3
+Intel HD Graphics 6000        102   12.4   47.8
+NVIDIA GeForce 9500 GT        214   10.0   47.7
+NVIDIA GeForce 210            523   12.8   47.3
+ATI Radeon HD 5570 OEM        110   -1.1   46.8
+ATI Radeon HD 5450            454    2.4   45.7
+ATI Radeon HD 4670            137   -7.9   44.5
+
+-- por CpuName (viés + = o modelo prevê FPS a mais) --
+                      linhas  viés%  erro%
+CpuName                                   
+Intel Pentium E5200      181    0.9   49.7
+Intel Core i7-2630QM     103   -4.5   48.0
+Intel Pentium G3220      320    2.1   47.7
+Intel Core i5-750        104   -1.4   46.9
+Intel Pentium G630       119    2.8   46.3
+Intel Pentium G620       149    0.2   46.2
+AMD Athlon II X2 245     123    6.2   45.4
+Intel Core i3-530        129   -3.3   44.9
+Intel Core i9-7900X      127   -3.2   43.7
+Intel Core i3-540        315    2.1   43.5
+
+-------------------------------
+
+linhas: 106,773 | configurações com n >= 7: 8,055 | peso: n
+features: contexto 3, GPU 21, CPU 11
+
+== 1. ABLAÇÃO (Gradient Boosting, divisão por GPU) ==
+só contexto (jogo, resolução, config.)     R²  0.339 erro  43.9% | n>=7: R²  0.588 erro  29.4%     6s
+contexto + CPU                             R²  0.583 erro  33.2% | n>=7: R²  0.810 erro  18.6%     8s
+contexto + GPU                             R²  0.631 erro  30.0% | n>=7: R²  0.849 erro  17.0%    13s
+contexto + GPU + CPU                       R²  0.686 erro  26.9% | n>=7: R²  0.902 erro  13.1%    15s
+
+== 2. LOG NAS FEATURES (Ridge, divisão por GPU) ==
+colunas com log1p: ['GpuMemoryBus', 'GpuOpenCL', 'GpuProcessSize', 'GpuNumberOfTransistors', 'CpuNumberOfThreads', 'CpuBaseClock', 'CpuCacheL1', 'CpuCacheL2', 'CpuCacheL3', 'CpuProcessSize', 'CpuTDP']
+Ridge                                      R²  0.622 erro  30.1% | n>=7: R²  0.845 erro  16.6% 
+Ridge com log nas features                 R²  0.620 erro  30.3% | n>=7: R²  0.840 erro  17.0% 
+
+== 3. AJUSTE DO GRADIENT BOOSTING (divisão por GPU) ==
+padrão do scikit-learn                     R²  0.686 erro  26.9% | n>=7: R²  0.902 erro  13.1% 
+{'learning_rate': 0.05, 'max_leaf_nodes': 15} R²  0.687 erro  26.7% | n>=7: R²  0.901 erro  13.3%    36s
+{'learning_rate': 0.05, 'max_leaf_nodes': 31} R²  0.692 erro  26.4% | n>=7: R²  0.905 erro  12.9%    47s
+{'learning_rate': 0.05, 'max_leaf_nodes': 63} R²  0.694 erro  26.3% | n>=7: R²  0.908 erro  12.7%    56s
+{'learning_rate': 0.1, 'max_leaf_nodes': 15} R²  0.690 erro  26.5% | n>=7: R²  0.902 erro  13.2%    34s
+{'learning_rate': 0.1, 'max_leaf_nodes': 31} R²  0.691 erro  26.4% | n>=7: R²  0.903 erro  13.0%    33s
+{'learning_rate': 0.1, 'max_leaf_nodes': 63} R²  0.692 erro  26.4% | n>=7: R²  0.906 erro  12.8%    34s
+
+melhor: {'max_iter': 500, 'early_stopping': True, 'n_iter_no_change': 20, 'learning_rate': 0.05, 'max_leaf_nodes': 63}
+(o ajuste usou a divisão por GPU; a confirmação abaixo usa outras divisões)
+por CPU: padrão                            R²  0.691 erro  26.3% | n>=7: R²  0.910 erro  12.4% 
+por CPU: ajustado                          R²  0.699 erro  25.4% | n>=7: R²  0.913 erro  12.2% 
+aleatória: padrão                          R²  0.696 erro  25.8% | n>=7: R²  0.919 erro  11.7% 
+aleatória: ajustado                        R²  0.707 erro  24.7% | n>=7: R²  0.926 erro  11.1% 
+
+== 4. ONDE O MODELO ERRA (Gradient Boosting, por GPU) ==
+
+-- por GameName (viés + = o modelo prevê FPS a mais) --
+                              linhas  viés%  erro%
+GameName                                          
+minecraft                       3587   -0.8   71.1
+arkSurvivalEvolved              2085    1.3   36.7
+battlefield4                    4106    3.2   34.0
+rocketLeague                    1741   -1.5   33.5
+worldOfTanks                    4604    3.2   31.2
+counterStrikeGlobalOffensive   11504    0.1   30.1
+callOfDutyBlackOps4             2427    2.0   30.0
+leagueOfLegends                 7832   -0.3   29.8
+fortnite                        9564    1.0   28.7
+rust                            2247    0.9   27.4
+dota2                           4593    0.2   27.2
+battlefield1                    5287    2.6   27.0
+overwatch                       8671   -0.4   25.0
+grandTheftAuto5                 9324    1.7   24.8
+playerUnknownsBattlegrounds     9686    1.4   23.8
+apexLegends                     5151    1.2   22.3
+warframe                        1026   -1.9    9.8
+totalWar3Kingdoms               1026    2.5    9.7
+battletech                      1026    2.6    9.5
+destiny2                        1026   -0.5    9.1
+radicalHeights                  1026    1.7    9.0
+pathOfExile                     1026   -1.5    8.9
+rainbowSixSiege                 1026    1.7    8.9
+airMechStrike                   1026   -1.0    8.8
+frostpunk                       1026   -1.0    8.8
+callOfDutyWW2                   1026   -1.0    8.8
+aWayOut                         1026   -1.0    8.8
+starcraft2                      1026   -1.2    8.8
+seaOfThieves                    1026   -0.8    8.7
+farCry5                         1026    1.3    8.6
+
+-- por faixa_n (viés + = o modelo prevê FPS a mais) --
+         linhas  viés%  erro%
+faixa_n                      
+2         16094   -0.5   29.7
+1         68222    1.9   28.1
+3-5       12824   -1.4   22.6
+6-20       7156   -1.8   14.5
+>20        2477   -1.8   10.1
+
+-- por GameSetting (viés + = o modelo prevê FPS a mais) --
+             linhas  viés%  erro%
+GameSetting                      
+0             18241    0.6   32.3
+2             21298   -0.6   28.9
+3             38576    1.9   25.6
+1             28658    0.5   21.6
+
+-- por GameResolution (viés + = o modelo prevê FPS a mais) --
+                linhas  viés%  erro%
+GameResolution                      
+720.0            21282    0.5   37.2
+1440.0           11387   -0.2   28.8
+1080.0           74104    1.1   22.9
+
+-- por GpuArchitecture (viés + = o modelo prevê FPS a mais) --
+                 linhas  viés%  erro%
+GpuArchitecture                      
+Tesla               739    2.6   48.9
+Tesla 2.0           971    5.2   48.8
+Fermi              1286   -0.6   44.5
+TeraScale           434   -1.6   44.0
+TeraScale 2        2787    2.0   43.3
+Generation 7.0      292   14.2   42.7
+Fermi 2.0          1498   -1.8   41.7
+Kepler 2.0         2002    0.5   41.6
+Maxwell            1760    1.5   36.5
+TeraScale 3         299    6.7   35.4
+GCN 1.0            6828    1.0   34.9
+Generation 8.0      284   11.7   34.4
+GCN 5.1              58    3.4   34.1
+Kepler            10064   -0.6   32.9
+GCN 2.0            3271    0.9   31.7
+GCN 3.0            1624    0.4   31.5
+GCN 4.0           12408    1.8   28.2
+Maxwell 2.0       10788    1.5   22.4
+Pascal            30953    1.6   21.9
+GCN 5.0            2110    2.4   19.4
+Turing            13988   -2.5   17.2
+RDNA 1.0           2232    2.4   12.0
+
+-- por GpuName (viés + = o modelo prevê FPS a mais) --
+                           linhas  viés%  erro%
+GpuName                                        
+Intel HD Graphics 6000        102   22.4   55.4
+NVIDIA GeForce GT 440         153   -3.2   51.8
+NVIDIA GeForce GT 220 OEM     172    1.1   49.5
+AMD Radeon HD 6450 OEM        178    4.2   48.6
+NVIDIA GeForce 210            523   10.7   48.5
+ATI Radeon HD 5570 OEM        110   -2.6   47.6
+NVIDIA GeForce 9500 GT        214    6.4   47.4
+ATI Radeon HD 5450            454    3.7   46.4
+ATI Radeon HD 4670            137   -6.6   44.7
+NVIDIA GeForce GT 710 OEM     736   -1.0   43.1
+
+-- por CpuName (viés + = o modelo prevê FPS a mais) --
+                      linhas  viés%  erro%
+CpuName                                   
+Intel Pentium E5200      181    2.2   50.3
+Intel Core i7-2630QM     103   -3.5   49.8
+Intel Pentium G3220      320    5.7   48.9
+Intel Core i5-750        104    0.3   47.4
+Intel Pentium G620       149    0.9   45.8
+Intel Pentium G630       119    5.4   45.7
+Intel Core i3-530        129   -2.0   45.7
+AMD Athlon II X2 245     123    7.1   45.6
+Intel Core i9-7900X      127   -5.1   44.9
+AMD Athlon II X2 270     166   -1.4   43.0
+
+------------------------------
+
+linhas: 106,773 | configurações com n >= 7: 8,055 | peso: none
+features: contexto 3, GPU 21, CPU 11
+
+== 1. ABLAÇÃO (Gradient Boosting, divisão por GPU) ==
+só contexto (jogo, resolução, config.)     R²  0.401 erro  42.6% | n>=7: R²  0.459 erro  36.5%     6s
+contexto + CPU                             R²  0.600 erro  32.8% | n>=7: R²  0.768 erro  22.0%     7s
+contexto + GPU                             R²  0.639 erro  29.6% | n>=7: R²  0.834 erro  17.9%    13s
+contexto + GPU + CPU                       R²  0.692 erro  26.5% | n>=7: R²  0.885 erro  14.4%    15s
+
+== 2. LOG NAS FEATURES (Ridge, divisão por GPU) ==
+colunas com log1p: ['GpuMemoryBus', 'GpuOpenCL', 'GpuProcessSize', 'GpuNumberOfTransistors', 'CpuNumberOfThreads', 'CpuBaseClock', 'CpuCacheL1', 'CpuCacheL2', 'CpuCacheL3', 'CpuProcessSize', 'CpuTDP']
+Ridge                                      R²  0.636 erro  29.9% | n>=7: R²  0.803 erro  19.7% 
+Ridge com log nas features                 R²  0.635 erro  30.0% | n>=7: R²  0.803 erro  19.8% 
+
+== 3. AJUSTE DO GRADIENT BOOSTING (divisão por GPU) ==
+padrão do scikit-learn                     R²  0.692 erro  26.5% | n>=7: R²  0.885 erro  14.4% 
+{'learning_rate': 0.05, 'max_leaf_nodes': 15} R²  0.690 erro  26.6% | n>=7: R²  0.884 erro  14.5%    35s
+{'learning_rate': 0.05, 'max_leaf_nodes': 31} R²  0.695 erro  26.3% | n>=7: R²  0.891 erro  14.0%    45s
+{'learning_rate': 0.05, 'max_leaf_nodes': 63} R²  0.695 erro  26.2% | n>=7: R²  0.893 erro  13.9%    45s
+{'learning_rate': 0.1, 'max_leaf_nodes': 15} R²  0.690 erro  26.6% | n>=7: R²  0.888 erro  14.3%    32s
+{'learning_rate': 0.1, 'max_leaf_nodes': 31} R²  0.692 erro  26.4% | n>=7: R²  0.890 erro  14.0%    31s
+{'learning_rate': 0.1, 'max_leaf_nodes': 63} R²  0.691 erro  26.4% | n>=7: R²  0.892 erro  13.9%    28s
+
+melhor: {'max_iter': 500, 'early_stopping': True, 'n_iter_no_change': 20, 'learning_rate': 0.05, 'max_leaf_nodes': 63}
+(o ajuste usou a divisão por GPU; a confirmação abaixo usa outras divisões)
+por CPU: padrão                            R²  0.696 erro  25.8% | n>=7: R²  0.889 erro  14.2% 
+por CPU: ajustado                          R²  0.701 erro  25.2% | n>=7: R²  0.898 erro  13.5% 
+aleatória: padrão                          R²  0.702 erro  25.2% | n>=7: R²  0.900 erro  13.3% 
+aleatória: ajustado                        R²  0.709 erro  24.5% | n>=7: R²  0.909 erro  12.7% 
+
+== 4. ONDE O MODELO ERRA (Gradient Boosting, por GPU) ==
+
+-- por GameName (viés + = o modelo prevê FPS a mais) --
+                              linhas  viés%  erro%
+GameName                                          
+minecraft                       3587   -2.5   71.5
+arkSurvivalEvolved              2085    2.6   36.8
+rocketLeague                    1741   -2.0   33.2
+battlefield4                    4106   -0.3   33.1
+worldOfTanks                    4604   -0.5   31.2
+counterStrikeGlobalOffensive   11504   -0.3   30.1
+callOfDutyBlackOps4             2427    0.7   30.1
+leagueOfLegends                 7832   -0.1   29.8
+fortnite                        9564   -0.5   28.5
+battlefield1                    5287    2.1   27.3
+rust                            2247    0.2   27.3
+dota2                           4593   -0.7   27.2
+overwatch                       8671   -0.1   24.6
+grandTheftAuto5                 9324    0.9   24.6
+playerUnknownsBattlegrounds     9686    0.4   23.7
+apexLegends                     5151   -0.4   22.0
+warframe                        1026   -1.8   10.2
+pathOfExile                     1026   -1.5    9.9
+starcraft2                      1026   -1.4    9.6
+callOfDutyWW2                   1026   -1.4    9.4
+aWayOut                         1026   -1.4    9.1
+frostpunk                       1026   -1.4    9.0
+rainbowSixSiege                 1026    1.5    9.0
+seaOfThieves                    1026   -1.4    9.0
+airMechStrike                   1026   -1.4    9.0
+radicalHeights                  1026    1.8    8.9
+destiny2                        1026    0.5    8.9
+farCry5                         1026    1.3    8.8
+totalWar3Kingdoms               1026    1.5    8.7
+battletech                      1026    1.8    8.5
+
+-- por faixa_n (viés + = o modelo prevê FPS a mais) --
+         linhas  viés%  erro%
+faixa_n                      
+2         16094   -1.1   30.1
+1         68222    1.3   27.6
+3-5       12824   -2.5   23.0
+6-20       7156   -3.7   15.5
+>20        2477   -4.2   11.6
+
+-- por GameSetting (viés + = o modelo prevê FPS a mais) --
+             linhas  viés%  erro%
+GameSetting                      
+0             18241    0.1   32.2
+2             21298   -0.5   29.1
+3             38576    0.0   25.3
+1             28658    0.2   21.5
+
+-- por GameResolution (viés + = o modelo prevê FPS a mais) --
+                linhas  viés%  erro%
+GameResolution                      
+720.0            21282    0.2   37.2
+1440.0           11387   -0.8   29.2
+1080.0           74104    0.0   22.8
+
+-- por GpuArchitecture (viés + = o modelo prevê FPS a mais) --
+                 linhas  viés%  erro%
+GpuArchitecture                      
+Tesla 2.0           971    5.3   49.1
+Tesla               739    1.3   48.9
+TeraScale           434    0.5   45.3
+Fermi              1286   -1.8   44.5
+Generation 7.0      292   16.7   44.5
+TeraScale 2        2787    2.0   43.3
+Fermi 2.0          1498   -4.1   42.0
+Kepler 2.0         2002    0.8   41.4
+GCN 5.1              58    5.0   36.2
+Maxwell            1760   -0.1   36.1
+TeraScale 3         299    4.2   35.3
+GCN 1.0            6828   -0.4   35.3
+Kepler            10064    0.8   32.9
+Generation 8.0      284    8.8   32.3
+GCN 2.0            3271    0.6   31.7
+GCN 3.0            1624    2.6   31.7
+GCN 4.0           12408    2.3   27.5
+Maxwell 2.0       10788   -1.2   22.4
+Pascal            30953    0.5   21.8
+GCN 5.0            2110    2.2   19.7
+Turing            13988   -4.6   17.5
+RDNA 1.0           2232    1.7   10.3
+
+-- por GpuName (viés + = o modelo prevê FPS a mais) --
+                           linhas  viés%  erro%
+GpuName                                        
+Intel HD Graphics 6000        102   18.8   52.7
+NVIDIA GeForce GT 440         153   -5.8   51.8
+NVIDIA GeForce GT 220 OEM     172   -2.6   51.4
+AMD Radeon HD 7870M           414  -24.1   49.9
+AMD Radeon HD 6450 OEM        178    2.8   49.9
+NVIDIA GeForce 210            523   12.5   47.5
+NVIDIA GeForce 9500 GT        214    6.1   47.3
+ATI Radeon HD 5570 OEM        110   -4.2   46.8
+ATI Radeon HD 5450            454    1.8   46.4
+ATI Radeon HD 4670            137   -4.3   44.8
+
+-- por CpuName (viés + = o modelo prevê FPS a mais) --
+                      linhas  viés%  erro%
+CpuName                                   
+Intel Pentium E5200      181   -0.5   50.8
+Intel Pentium G3220      320    2.5   49.0
+Intel Core i7-2630QM     103   -4.8   48.8
+Intel Pentium G630       119   -0.1   46.5
+Intel Core i5-750        104   -1.5   46.3
+Intel Core i3-530        129   -4.1   45.8
+Intel Pentium G620       149   -1.2   44.5
+Intel Pentium G2020      245    6.5   43.6
+AMD Athlon II X2 245     123    5.8   43.5
+Intel Core i3-540        315    1.7   42.9

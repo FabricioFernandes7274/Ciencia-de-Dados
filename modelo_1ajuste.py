@@ -14,11 +14,11 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 CSV = sys.argv[1] if len(sys.argv) > 1 else "fps_modelo.csv"
-N_MAX = int(sys.argv[2]) if len(sys.argv) > 2 else 40_000   # 0 usa todas as linhas (mais lento)
+N_MAX = int(sys.argv[2]) if len(sys.argv) > 2 else 0   # 0 usa todas as linhas (mais lento)
 
 # ---------- ajustes ----------
-PESO = "sqrt"                                      # "none", "sqrt" ou "n"
-MIN_N = 6                                          # configurações "confiáveis": pelo menos MIN_N medições
+PESO = "none"                                      # "none", "sqrt" ou "n"
+MIN_N = 7                                          # configurações "confiáveis": pelo menos MIN_N medições
 ETAPAS = ["ablacao", "log", "ajuste", "erros"]     # tire as que não quiser rodar
 GRADE = [dict(learning_rate=lr, max_leaf_nodes=nl) for lr in (0.05, 0.1) for nl in (15, 31, 63)]
 
