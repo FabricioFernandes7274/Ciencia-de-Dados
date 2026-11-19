@@ -1,0 +1,344 @@
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: sqrt
+configurações com n >= 5: 4,480
+
+divisão    modelo                 R²  erro% |  R² n>=5  erro% |     s
+por GPU    média global       -0.019   62.0 |   -0.094   54.6 |     0
+por GPU    só o jogo           0.267   48.0 |    0.321   40.2 |     0
+por GPU    Ridge               0.634   30.0 |    0.808   18.9 |     2
+por GPU    Random Forest       0.671   27.9 |    0.841   16.7 |    82
+por GPU    Gradient Boosting   0.687   27.0 |    0.862   15.6 |    15
+aleatória  média global       -0.011   61.6 |   -0.081   54.1 |     0
+aleatória  só o jogo           0.275   47.5 |    0.337   39.5 |     0
+aleatória  Ridge               0.643   29.2 |    0.826   17.8 |     2
+aleatória  Random Forest       0.683   26.6 |    0.867   14.9 |    98
+aleatória  Gradient Boosting   0.697   25.8 |    0.879   14.3 |    20
+por CPU    média global       -0.013   61.7 |   -0.083   54.2 |     0
+por CPU    só o jogo           0.273   47.6 |    0.333   39.7 |     0
+por CPU    Ridge               0.638   29.5 |    0.822   18.1 |     2
+por CPU    Random Forest       0.674   27.2 |    0.850   16.1 |   112
+por CPU    Gradient Boosting   0.691   26.4 |    0.865   15.3 |    21
+por jogo   média global       -0.066   64.2 |   -0.196   58.1 |     0
+por jogo   só o jogo          -0.040   62.6 |   -0.066   53.9 |     0
+por jogo   Ridge               0.287   49.5 |    0.179   46.6 |     2
+por jogo   Random Forest       0.117   59.2 |   -0.274   64.9 |   104
+por jogo   Gradient Boosting   0.257   51.9 |    0.043   53.2 |    22
+
+----------------------------------
+
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: n
+configurações com n >= 5: 4,480
+
+divisão    modelo                 R²  erro% |  R² n>=5  erro% |     s
+por GPU    média global       -0.183   67.3 |   -0.026   52.0 |     0
+por GPU    só o jogo           0.185   49.9 |    0.345   37.1 |     0
+por GPU    Ridge               0.620   30.4 |    0.819   17.9 |     2
+por GPU    Random Forest       0.661   28.9 |    0.848   16.5 |    52
+por GPU    Gradient Boosting   0.680   27.5 |    0.864   15.4 |    16
+aleatória  média global       -0.173   66.9 |   -0.006   51.4 |     0
+aleatória  só o jogo           0.196   49.2 |    0.370   36.0 |     0
+aleatória  Ridge               0.628   29.6 |    0.838   16.9 |     2
+aleatória  Random Forest       0.677   27.5 |    0.874   14.6 |    59
+aleatória  Gradient Boosting   0.692   26.2 |    0.883   13.9 |    19
+por CPU    média global       -0.172   66.9 |   -0.006   51.4 |     0
+por CPU    só o jogo           0.196   49.3 |    0.367   36.2 |     0
+por CPU    Ridge               0.624   30.0 |    0.833   17.2 |     2
+por CPU    Random Forest       0.667   28.2 |    0.852   15.9 |    64
+por CPU    Gradient Boosting   0.684   26.9 |    0.872   14.8 |    20
+por jogo   média global       -0.253   70.6 |   -0.189   58.1 |     0
+por jogo   só o jogo          -0.075   63.6 |   -0.028   52.4 |     0
+por jogo   Ridge               0.270   50.2 |    0.187   46.5 |     2
+por jogo   Random Forest       0.128   58.6 |   -0.264   65.1 |    58
+por jogo   Gradient Boosting   0.241   52.9 |    0.022   55.0 |    19
+
+-------------------------------
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: none
+configurações com n >= 5: 4,480
+
+divisão    modelo                 R²  erro% |  R² n>=5  erro% |     s
+por GPU    média global       -0.007   62.0 |   -0.177   57.4 |     0
+por GPU    só o jogo           0.278   48.3 |    0.246   44.0 |     0
+por GPU    Ridge               0.635   30.2 |    0.786   20.5 |     2
+por GPU    Random Forest       0.668   28.0 |    0.827   17.6 |    79
+por GPU    Gradient Boosting   0.686   27.0 |    0.852   16.3 |    12
+aleatória  média global       -0.000   61.7 |   -0.166   57.0 |     0
+aleatória  só o jogo           0.285   47.9 |    0.258   43.5 |     0
+aleatória  Ridge               0.645   29.3 |    0.805   19.3 |     2
+aleatória  Random Forest       0.682   26.3 |    0.857   15.7 |    96
+aleatória  Gradient Boosting   0.697   25.7 |    0.865   15.4 |    15
+por CPU    média global       -0.002   61.8 |   -0.167   57.0 |     0
+por CPU    só o jogo           0.282   48.0 |    0.255   43.7 |     0
+por CPU    Ridge               0.640   29.7 |    0.800   19.6 |     2
+por CPU    Random Forest       0.674   27.0 |    0.842   16.6 |   102
+por CPU    Gradient Boosting   0.691   26.4 |    0.853   16.1 |    15
+por jogo   média global       -0.046   63.8 |   -0.256   60.2 |     0
+por jogo   só o jogo          -0.029   62.5 |   -0.092   54.8 |     0
+por jogo   Ridge               0.293   49.3 |    0.164   46.8 |     2
+por jogo   Random Forest       0.134   58.3 |   -0.230   62.5 |    92
+por jogo   Gradient Boosting   0.254   52.1 |    0.022   53.9 |    15
+
+---------------------------
+
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: sqrt
+configurações com n >= 6: 3,631
+
+divisão    modelo                 R²  erro% |  R² n>=6  erro% |     s
+por GPU    média global       -0.019   62.0 |   -0.119   54.7 |     0
+por GPU    só o jogo           0.267   48.0 |    0.327   39.6 |     0
+por GPU    Ridge               0.634   30.0 |    0.818   18.2 |     2
+por GPU    Random Forest       0.671   27.9 |    0.855   15.7 |    68
+por GPU    Gradient Boosting   0.687   27.0 |    0.877   14.6 |    12
+aleatória  média global       -0.011   61.6 |   -0.107   54.3 |     0
+aleatória  só o jogo           0.275   47.5 |    0.342   39.0 |     0
+aleatória  Ridge               0.643   29.2 |    0.838   17.0 |     2
+aleatória  Random Forest       0.683   26.6 |    0.882   13.9 |    85
+aleatória  Gradient Boosting   0.697   25.8 |    0.893   13.3 |    16
+por CPU    média global       -0.013   61.7 |   -0.109   54.4 |     0
+por CPU    só o jogo           0.273   47.6 |    0.337   39.2 |     0
+por CPU    Ridge               0.638   29.5 |    0.833   17.3 |     2
+por CPU    Random Forest       0.674   27.2 |    0.867   15.0 |    91
+por CPU    Gradient Boosting   0.691   26.4 |    0.880   14.3 |    17
+por jogo   média global       -0.066   64.2 |   -0.228   58.4 |     0
+por jogo   só o jogo          -0.040   62.6 |   -0.086   53.9 |     0
+por jogo   Ridge               0.287   49.5 |    0.161   46.5 |     2
+por jogo   Random Forest       0.117   59.2 |   -0.309   65.2 |    85
+por jogo   Gradient Boosting   0.257   51.9 |    0.022   53.2 |    16
+
+------------------------
+
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: n
+configurações com n >= 6: 3,631
+
+divisão    modelo                 R²  erro% |  R² n>=6  erro% |     s
+por GPU    média global       -0.183   67.3 |   -0.021   51.4 |     0
+por GPU    só o jogo           0.185   49.9 |    0.371   35.8 |     0
+por GPU    Ridge               0.620   30.4 |    0.832   17.0 |     2
+por GPU    Random Forest       0.661   28.9 |    0.861   15.5 |    48
+por GPU    Gradient Boosting   0.680   27.5 |    0.878   14.4 |    15
+aleatória  média global       -0.173   66.9 |   -0.002   50.8 |     0
+aleatória  só o jogo           0.196   49.2 |    0.394   34.8 |     0
+aleatória  Ridge               0.628   29.6 |    0.852   15.8 |     2
+aleatória  Random Forest       0.677   27.5 |    0.888   13.5 |    53
+aleatória  Gradient Boosting   0.692   26.2 |    0.897   12.9 |    17
+por CPU    média global       -0.172   66.9 |   -0.003   50.8 |     0
+por CPU    só o jogo           0.196   49.3 |    0.390   35.0 |     0
+por CPU    Ridge               0.624   30.0 |    0.846   16.2 |     2
+por CPU    Random Forest       0.667   28.2 |    0.865   15.0 |    54
+por CPU    Gradient Boosting   0.684   26.9 |    0.886   13.8 |    17
+por jogo   média global       -0.253   70.6 |   -0.194   57.6 |     0
+por jogo   só o jogo          -0.075   63.6 |   -0.040   52.3 |     0
+por jogo   Ridge               0.270   50.2 |    0.174   46.3 |     2
+por jogo   Random Forest       0.128   58.6 |   -0.298   65.3 |    51
+por jogo   Gradient Boosting   0.241   52.9 |    0.002   55.0 |    17
+
+-------------------------
+
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: none
+configurações com n >= 5: 4,480
+
+divisão    modelo                 R²  erro% |  R² n>=5  erro% |     s
+por GPU    média global       -0.007   62.0 |   -0.177   57.4 |     0
+por GPU    só o jogo           0.278   48.3 |    0.246   44.0 |     0
+por GPU    Ridge               0.635   30.2 |    0.786   20.5 |     2
+por GPU    Random Forest       0.668   28.0 |    0.827   17.6 |    79
+por GPU    Gradient Boosting   0.686   27.0 |    0.852   16.3 |    12
+aleatória  média global       -0.000   61.7 |   -0.166   57.0 |     0
+aleatória  só o jogo           0.285   47.9 |    0.258   43.5 |     0
+aleatória  Ridge               0.645   29.3 |    0.805   19.3 |     2
+aleatória  Random Forest       0.682   26.3 |    0.857   15.7 |    96
+aleatória  Gradient Boosting   0.697   25.7 |    0.865   15.4 |    15
+por CPU    média global       -0.002   61.8 |   -0.167   57.0 |     0
+por CPU    só o jogo           0.282   48.0 |    0.255   43.7 |     0
+por CPU    Ridge               0.640   29.7 |    0.800   19.6 |     2
+por CPU    Random Forest       0.674   27.0 |    0.842   16.6 |   102
+por CPU    Gradient Boosting   0.691   26.4 |    0.853   16.1 |    15
+por jogo   média global       -0.046   63.8 |   -0.256   60.2 |     0
+por jogo   só o jogo          -0.029   62.5 |   -0.092   54.8 |     0
+por jogo   Random Forest       0.134   58.3 |   -0.230   62.5 |    92
+por jogo   Gradient Boosting   0.254   52.1 |    0.022   53.9 |    15
+
+predições fora da amostra salvas em predicoes_oof.csv (para analisar os erros)
+PS C:\Users\Fabrício\Documents\cd> & 'C:\Users\Fabrício\AppData\Local\Microsoft\WindowsApps\python3.13.exe' 'c:/Users/Fabrício/Documents/cd/esqueleto_modelo.py'
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: sqrt
+configurações com n >= 6: 3,631
+
+divisão    modelo                 R²  erro% |  R² n>=6  erro% |     s
+por GPU    média global       -0.019   62.0 |   -0.119   54.7 |     0
+por GPU    só o jogo           0.267   48.0 |    0.327   39.6 |     0
+por GPU    Ridge               0.634   30.0 |    0.818   18.2 |     2
+por GPU    Random Forest       0.671   27.9 |    0.855   15.7 |    68
+por GPU    Gradient Boosting   0.687   27.0 |    0.877   14.6 |    12
+aleatória  média global       -0.011   61.6 |   -0.107   54.3 |     0
+aleatória  só o jogo           0.275   47.5 |    0.342   39.0 |     0
+aleatória  Ridge               0.643   29.2 |    0.838   17.0 |     2
+aleatória  Random Forest       0.683   26.6 |    0.882   13.9 |    85
+aleatória  Gradient Boosting   0.697   25.8 |    0.893   13.3 |    16
+por CPU    média global       -0.013   61.7 |   -0.109   54.4 |     0
+por CPU    só o jogo           0.273   47.6 |    0.337   39.2 |     0
+por CPU    Ridge               0.638   29.5 |    0.833   17.3 |     2
+por CPU    Random Forest       0.674   27.2 |    0.867   15.0 |    91
+por CPU    Gradient Boosting   0.691   26.4 |    0.880   14.3 |    17
+por jogo   média global       -0.066   64.2 |   -0.228   58.4 |     0
+por jogo   só o jogo          -0.040   62.6 |   -0.086   53.9 |     0
+por jogo   Ridge               0.287   49.5 |    0.161   46.5 |     2
+por jogo   Gradient Boosting   0.257   51.9 |    0.022   53.2 |    16
+
+predições fora da amostra salvas em predicoes_oof.csv (para analisar os erros)
+PS C:\Users\Fabrício\Documents\cd> ^C
+PS C:\Users\Fabrício\Documents\cd> & 'C:\Users\Fabrício\AppData\Local\Microsoft\WindowsApps\python3.13.exe' 'c:/Users/Fabrício/Documents/cd/esqueleto_modelo.py'
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: n
+configurações com n >= 6: 3,631
+
+divisão    modelo                 R²  erro% |  R² n>=6  erro% |     s
+por GPU    média global       -0.183   67.3 |   -0.021   51.4 |     0
+por GPU    só o jogo           0.185   49.9 |    0.371   35.8 |     0
+por GPU    Ridge               0.620   30.4 |    0.832   17.0 |     2
+por GPU    Random Forest       0.661   28.9 |    0.861   15.5 |    48
+por GPU    Gradient Boosting   0.680   27.5 |    0.878   14.4 |    15
+aleatória  média global       -0.173   66.9 |   -0.002   50.8 |     0
+aleatória  só o jogo           0.196   49.2 |    0.394   34.8 |     0
+aleatória  Ridge               0.628   29.6 |    0.852   15.8 |     2
+aleatória  Random Forest       0.677   27.5 |    0.888   13.5 |    53
+aleatória  Gradient Boosting   0.692   26.2 |    0.897   12.9 |    17
+por CPU    média global       -0.172   66.9 |   -0.003   50.8 |     0
+por CPU    só o jogo           0.196   49.3 |    0.390   35.0 |     0
+por CPU    Ridge               0.624   30.0 |    0.846   16.2 |     2
+por CPU    Random Forest       0.667   28.2 |    0.865   15.0 |    54
+por CPU    Gradient Boosting   0.684   26.9 |    0.886   13.8 |    17
+por jogo   média global       -0.253   70.6 |   -0.194   57.6 |     0
+por jogo   só o jogo          -0.075   63.6 |   -0.040   52.3 |     0
+por jogo   Random Forest       0.128   58.6 |   -0.298   65.3 |    51
+por jogo   Gradient Boosting   0.241   52.9 |    0.002   55.0 |    17
+
+predições fora da amostra salvas em predicoes_oof.csv (para analisar os erros)
+PS C:\Users\Fabrício\Documents\cd> & 'C:\Users\Fabrício\AppData\Local\Microsoft\WindowsApps\python3.13.exe' 'c:/Users/Fabrício/Documents/cd/esqueleto_modelo.py'
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: none
+configurações com n >= 6: 3,631
+
+divisão    modelo                 R²  erro% |  R² n>=6  erro% |     s
+por GPU    média global       -0.007   62.0 |   -0.214   57.8 |     0
+por GPU    só o jogo           0.278   48.3 |    0.239   44.0 |     0
+por GPU    Ridge               0.635   30.2 |    0.793   19.8 |     2
+por GPU    Random Forest       0.668   28.0 |    0.841   16.7 |   107
+por GPU    Gradient Boosting   0.686   27.0 |    0.866   15.4 |    15
+aleatória  média global       -0.000   61.7 |   -0.203   57.4 |     0
+aleatória  só o jogo           0.285   47.9 |    0.250   43.5 |     0
+aleatória  Ridge               0.645   29.3 |    0.814   18.6 |     2
+aleatória  Random Forest       0.682   26.3 |    0.872   14.7 |   109
+aleatória  Gradient Boosting   0.697   25.7 |    0.879   14.4 |    17
+por CPU    média global       -0.002   61.8 |   -0.205   57.5 |     0
+por CPU    só o jogo           0.282   48.0 |    0.247   43.6 |     0
+por CPU    Ridge               0.640   29.7 |    0.809   18.9 |     2
+por CPU    Random Forest       0.674   27.0 |    0.860   15.6 |   109
+por CPU    Gradient Boosting   0.691   26.4 |    0.867   15.2 |    17
+por jogo   média global       -0.046   63.8 |   -0.297   60.7 |     0
+por jogo   só o jogo          -0.029   62.5 |   -0.117   55.0 |     0
+por jogo   Ridge               0.293   49.3 |    0.143   46.8 |     2
+por jogo   Random Forest       0.134   58.3 |   -0.265   62.8 |    98
+por jogo   Gradient Boosting   0.254   52.1 |   -0.003   54.1 |    16
+
+-----------------------------------
+
+linhas: 40,000 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: none
+configurações com n >= 6: 3,631
+
+divisão    modelo                 R²  erro% |  R² n>=6  erro% |     s
+por GPU    média global       -0.007   62.0 |   -0.214   57.8 |     0
+por GPU    só o jogo           0.278   48.3 |    0.239   44.0 |     0
+por GPU    Ridge               0.635   30.2 |    0.793   19.8 |     2
+por GPU    Random Forest       0.668   28.0 |    0.841   16.7 |   107
+por GPU    Gradient Boosting   0.686   27.0 |    0.866   15.4 |    15
+aleatória  média global       -0.000   61.7 |   -0.203   57.4 |     0
+aleatória  só o jogo           0.285   47.9 |    0.250   43.5 |     0
+aleatória  Ridge               0.645   29.3 |    0.814   18.6 |     2
+aleatória  Random Forest       0.682   26.3 |    0.872   14.7 |   109
+aleatória  Gradient Boosting   0.697   25.7 |    0.879   14.4 |    17
+por CPU    média global       -0.002   61.8 |   -0.205   57.5 |     0
+por CPU    só o jogo           0.282   48.0 |    0.247   43.6 |     0
+por CPU    Ridge               0.640   29.7 |    0.809   18.9 |     2
+por CPU    Random Forest       0.674   27.0 |    0.860   15.6 |   109
+por CPU    Gradient Boosting   0.691   26.4 |    0.867   15.2 |    17
+por jogo   média global       -0.046   63.8 |   -0.297   60.7 |     0
+por jogo   só o jogo          -0.029   62.5 |   -0.117   55.0 |     0
+por jogo   Random Forest       0.134   58.3 |   -0.265   62.8 |    98
+por jogo   Gradient Boosting   0.254   52.1 |   -0.003   54.1 |    16
+
+predições fora da amostra salvas em predicoes_oof.csv (para analisar os erros)
+PS C:\Users\Fabrício\Documents\cd> & 'C:\Users\Fabrício\AppData\Local\Microsoft\WindowsApps\python3.13.exe' 'c:/Users/Fabrício/Documents/cd/esqueleto_modelo.py'
+linhas: 106,773 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: sqrt
+configurações com n >= 6: 9,633
+
+divisão    modelo                 R²  erro% |  R² n>=6  erro% |     s
+por GPU    média global       -0.016   61.7 |   -0.119   55.6 |     0
+por GPU    só o jogo           0.270   47.9 |    0.333   40.1 |     1
+por GPU    Ridge               0.634   29.8 |    0.818   18.5 |     5
+por GPU    Random Forest       0.675   27.4 |    0.869   15.2 |   218
+por GPU    Gradient Boosting   0.690   26.7 |    0.885   14.2 |    35
+aleatória  média global       -0.012   61.5 |   -0.111   55.3 |     0
+aleatória  só o jogo           0.276   47.5 |    0.345   39.5 |     1
+aleatória  Ridge               0.642   29.0 |    0.843   16.9 |     5
+aleatória  Random Forest       0.695   25.1 |    0.896   13.3 |   223
+aleatória  Gradient Boosting   0.703   25.3 |    0.902   13.0 |    37
+por CPU    média global       -0.016   61.6 |   -0.119   55.6 |     0
+por CPU    só o jogo           0.271   47.8 |    0.335   39.8 |     1
+por CPU    Ridge               0.637   29.4 |    0.839   17.2 |     5
+por CPU    Random Forest       0.685   25.9 |    0.881   14.3 |   220
+por CPU    Gradient Boosting   0.696   25.8 |    0.892   13.7 |    36
+por jogo   média global       -0.070   64.1 |   -0.245   59.9 |     0
+por jogo   só o jogo          -0.023   61.7 |   -0.083   54.5 |     1
+por jogo   Ridge               0.296   48.5 |    0.176   46.3 |     5
+por jogo   Random Forest       0.125   56.9 |   -0.279   62.8 |   203
+por jogo   Gradient Boosting   0.271   50.0 |    0.058   51.5 |    36
+
+---------------------------
+
+linhas: 106,773 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: n
+configurações com n >= 6: 9,633
+
+divisão    modelo                 R²  erro% |  R² n>=6  erro% |     s
+por GPU    média global       -0.162   66.3 |   -0.012   51.8 |     0
+por GPU    só o jogo           0.207   49.1 |    0.392   35.9 |     1
+por GPU    Ridge               0.622   30.1 |    0.832   17.2 |     5
+por GPU    Random Forest       0.672   27.5 |    0.877   14.7 |   123
+por GPU    Gradient Boosting   0.686   26.9 |    0.889   13.8 |    33
+aleatória  média global       -0.157   66.1 |   -0.001   51.5 |     0
+aleatória  só o jogo           0.213   48.8 |    0.409   35.0 |     1
+aleatória  Ridge               0.628   29.5 |    0.856   15.8 |     5
+aleatória  Random Forest       0.693   25.8 |    0.901   12.9 |   135
+aleatória  Gradient Boosting   0.696   25.8 |    0.907   12.5 |    39
+por CPU    média global       -0.164   66.4 |   -0.014   51.9 |     0
+por CPU    só o jogo           0.204   49.2 |    0.391   35.7 |     1
+por CPU    Ridge               0.622   30.0 |    0.852   16.1 |     5
+por CPU    Random Forest       0.686   26.4 |    0.888   13.8 |   139
+por CPU    Gradient Boosting   0.691   26.3 |    0.898   13.2 |    37
+por jogo   média global       -0.237   69.6 |   -0.193   58.5 |     0
+por jogo   só o jogo          -0.052   62.6 |   -0.035   52.8 |     1
+por jogo   Ridge               0.279   49.2 |    0.189   46.2 |     5
+por jogo   Random Forest       0.156   54.9 |   -0.209   60.6 |   131
+por jogo   Gradient Boosting   0.272   50.1 |    0.081   51.5 |    36
+
+-----------------------
+
+linhas: 106,773 | features numéricas: 32 | categóricas: ['GameName', 'GpuArchitecture', 'GpuMemoryType'] | peso: none
+configurações com n >= 6: 9,633
+
+divisão    modelo                 R²  erro% |  R² n>=6  erro% |     s
+por GPU    média global       -0.004   61.7 |   -0.216   58.9 |     0
+por GPU    só o jogo           0.280   48.2 |    0.246   44.4 |     1
+por GPU    Ridge               0.636   29.9 |    0.794   20.1 |     5
+por GPU    Random Forest       0.671   27.7 |    0.851   16.5 |   224
+por GPU    Gradient Boosting   0.692   26.5 |    0.874   15.0 |    33
+aleatória  média global       -0.000   61.5 |   -0.209   58.6 |     0
+aleatória  só o jogo           0.285   47.9 |    0.256   43.9 |     1
+aleatória  Ridge               0.644   29.1 |    0.820   18.6 |     5
+aleatória  Random Forest       0.693   25.0 |    0.884   14.1 |   250
+aleatória  Gradient Boosting   0.702   25.2 |    0.888   14.0 |    36
+por CPU    média global       -0.004   61.7 |   -0.215   58.8 |     0
+por CPU    só o jogo           0.281   48.1 |    0.248   44.2 |     1
+por CPU    Ridge               0.640   29.5 |    0.816   18.8 |     5
+por CPU    Random Forest       0.681   26.0 |    0.872   14.9 |   249
+por CPU    Gradient Boosting   0.696   25.8 |    0.878   14.9 |    37
+por jogo   média global       -0.047   63.7 |   -0.314   62.2 |     0
+por jogo   só o jogo          -0.013   61.6 |   -0.115   55.5 |     1
+por jogo   Ridge               0.302   48.3 |    0.158   46.7 |     5
+por jogo   Random Forest       0.123   57.3 |   -0.233   62.3 |   238
+por jogo   Gradient Boosting   0.282   49.4 |    0.077   50.5 |    36
